@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "324124127368",
+    "project_id": "sanchaekhasong-7bd56",
+    "storage_bucket": "sanchaekhasong-7bd56.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:324124127368:android:ca4fb684ae203f47ddaf3d",
+        "android_client_info": {
+          "package_name": "com.example.sanchaekhasong"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtWnXbHG_cAx1vMywU6oMOQzuptPwYgPc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

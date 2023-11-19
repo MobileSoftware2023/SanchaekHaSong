@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="college_array">
+        <item>선택</item>
+        <item>문과대학</item>
+        <item>이과대학</item>
+        <item>공과대학</item>
+        <item>생활과학대학</item>
+        <item>사회과학대학</item>
+        <item>법과대학</item>
+        <item>경상대학</item>
+        <item>음악대학</item>
+        <item>약학대학</item>
+        <item>미술대학</item>
+        <item>기초교양대학</item>
+        <item>글로벌융합대학</item>
+        <item>글로벌서비스학부</item>
+        <item>영어영문학부</item>
+        <item>미디어학부</item>
+    </string-array>
+</resources>
