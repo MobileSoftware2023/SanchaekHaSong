@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/backButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/back_arrow" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="마이 페이지"
+            android:textSize="28sp" />
+    </LinearLayout>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="260dp"
+        android:layout_marginTop="30dp">
+
+        <TextView
+            android:id="@+id/username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="112dp"
+            android:layout_marginBottom="76dp"
+            android:elevation="1dp"
+            android:text="noonsong123"
+            android:textSize="25sp"
+            app:layout_constraintBottom_toBottomOf="@+id/profileBg"
+            app:layout_constraintEnd_toEndOf="@+id/profileBg" />
+
+        <TextView
+            android:id="@+id/college"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="164dp"
+            android:layout_marginBottom="56dp"
+            android:text="공과대학"
+            app:layout_constraintBottom_toBottomOf="@+id/profileBg"
+            app:layout_constraintEnd_toEndOf="@+id/profileBg"
+            android:elevation="1dp"/>
+
+
+        <ImageView
+            android:id="@+id/profileBg"
+            android:layout_width="380dp"
+            android:layout_height="180dp"
+            android:background="@drawable/profile_bg"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.516"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.8" />
+
+        <ImageView
+            android:id="@+id/profileImage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="@drawable/image_border_line"
+            android:src="@drawable/snow"
+            android:padding="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.08" />
+
+        <Button
+            android:id="@+id/editButton"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="164dp"
+            android:background="@drawable/edit_button_border"
+            app:layout_constraintBottom_toBottomOf="@+id/profileImage"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.076"
+            tools:ignore="MissingConstraints" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#A9A9A9" />
+
+    <Button
+        android:id="@+id/couponBoxButton"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="쿠폰 보관함"
+        android:textSize="18sp"
+        android:paddingLeft="20dp"
+        android:gravity="left|center"
+        android:background="#00FF0000"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#A9A9A9" />
+
+    <Button
+        android:id="@+id/logoutButton"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="로그아웃"
+        android:textSize="18sp"
+        android:paddingLeft="20dp"
+        android:gravity="left|center"
+        android:background="#00FF0000"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#A9A9A9" />
+
+    <Button
+        android:id="@+id/deleteAccountButton"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="회원 탈퇴"
+        android:textSize="18sp"
+        android:paddingLeft="20dp"
+        android:gravity="left|center"
+        android:background="#00FF0000"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#A9A9A9" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="단과대 변경은 qwerty@gmail.com으로 문의해주세요"
+        android:textColor="#A9A9A9"/>
+
+
+</LinearLayout>

@@ -1,16 +1,18 @@
-package com.example.sanchaekhasong
+package com.example.sanchaekhasong.login
 
-import android.R
 import android.app.Activity
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.RadioButton
+import com.example.sanchaekhasong.MainActivity
+import com.example.sanchaekhasong.R
 import com.example.sanchaekhasong.databinding.ActivityCreateAccountBinding
 
 class CreateAccountActivity : AppCompatActivity() {
@@ -24,13 +26,25 @@ class CreateAccountActivity : AppCompatActivity() {
         binding = ActivityCreateAccountBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        //프로필사진, username, 단과대 db에 저장
+        
+        binding.radioGroup.setOnCheckedChangeListener{ group, checkedID ->
+            when (checkedID) {
+                binding.snow.id -> binding.profileImage.setImageResource(R.drawable.snow)
+                binding.snow1.id -> binding.profileImage.setImageResource(R.drawable.snow1)
+                binding.snow2.id -> binding.profileImage.setImageResource(R.drawable.snow2)
+                binding.snow3.id -> binding.profileImage.setImageResource(R.drawable.snow3)
+                else -> binding.profileImage.setImageResource(R.drawable.snow4)
+            }
+        }
+
         binding.emailText.addTextChangedListener(watcher)
         binding.passwordText.addTextChangedListener(watcher)
 
         val collegeItems = arrayOf("선택", "문과대학", "이과대학", "공과대학", "생활과학대학",
                 "사회과학대학", "법과대학", "경상대학", "음악대학", "약학대학", "미술대학",
             "기초교양대학", "글로벌융합대학", "글로벌서비스학부", "영어영문학부", "미디어학부")
-        val adapter = ArrayAdapter(this, R.layout.simple_spinner_item, collegeItems)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, collegeItems)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.college.adapter = adapter
 
@@ -50,8 +64,12 @@ class CreateAccountActivity : AppCompatActivity() {
             }
         }
 
+        binding.backButton.setOnClickListener {
+            val intent : Intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+        }
+
         binding.joinBtn.setOnClickListener {
-            //회원가입 연결
             val intent = intent
             intent.putExtra("email", emailText)
             intent.putExtra("password", passwordText)

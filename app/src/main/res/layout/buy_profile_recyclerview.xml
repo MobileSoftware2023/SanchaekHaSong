@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <ImageButton
+        android:id="@+id/couponImage"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:scaleType="fitCenter"
+        android:padding="10dp"
+        android:layout_margin="10dp"
+        android:background="@null"
+        android:foreground="@drawable/image_border_line_transparent" />
+    <TextView
+        android:id="@+id/couponName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="컴포즈 커피 3000원권"
+        android:layout_marginBottom="5dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/coin"
+            android:layout_marginRight="5dp"/>
+        <TextView
+            android:id="@+id/couponPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="30000 C"/>
+    </LinearLayout>
+
+
+</LinearLayout>

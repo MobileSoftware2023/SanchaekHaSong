@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="200dp"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/college1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="이과대학" />
+
+        <TextView
+            android:id="@+id/walkCount1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="21,555걸음" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:layout_constraintBottom_toBottomOf="@+id/imageView2"
+            app:layout_constraintTop_toBottomOf="@+id/imageView2">
+
+            <ImageView
+                android:id="@+id/bg2"
+                android:layout_width="80dp"
+                android:layout_height="160dp"
+                android:background="@drawable/rank_bg"
+                android:backgroundTint="#CDE4FF"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/medal2"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:backgroundTint="#CDE4FF"
+                android:src="@drawable/medal2"
+                app:layout_constraintBottom_toBottomOf="@+id/bg2"
+                app:layout_constraintEnd_toEndOf="@+id/bg2"
+                app:layout_constraintHorizontal_bias="0.533"
+                app:layout_constraintStart_toStartOf="@+id/bg2"
+                app:layout_constraintTop_toTopOf="@+id/bg2"
+                app:layout_constraintVertical_bias="0.177" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="100dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/college2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="공과대학" />
+
+        <TextView
+            android:id="@+id/walkCount2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="26,555걸음" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:layout_constraintBottom_toBottomOf="@+id/imageView2"
+            app:layout_constraintTop_toBottomOf="@+id/imageView2">
+
+            <ImageView
+                android:id="@+id/bg1"
+                android:layout_width="80dp"
+                android:layout_height="240dp"
+                android:background="@drawable/rank_bg"
+                android:backgroundTint="#FFEAA0"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/medal1"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/medal1"
+                app:layout_constraintBottom_toBottomOf="@+id/bg1"
+                app:layout_constraintEnd_toEndOf="@+id/bg1"
+                app:layout_constraintHorizontal_bias="0.533"
+                app:layout_constraintStart_toStartOf="@+id/bg1"
+                app:layout_constraintTop_toTopOf="@+id/bg1"
+                app:layout_constraintVertical_bias="0.177" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="200dp"
+        android:layout_marginTop="130dp"
+        android:layout_marginBottom="80dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/college3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="문과대학" />
+
+        <TextView
+            android:id="@+id/walkCount3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="18,555걸음" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:layout_constraintBottom_toBottomOf="@+id/imageView2"
+            app:layout_constraintTop_toBottomOf="@+id/imageView2">
+
+            <ImageView
+                android:id="@+id/bg3"
+                android:layout_width="80dp"
+                android:layout_height="90dp"
+                android:background="@drawable/rank_bg"
+                android:backgroundTint="#FFD5B6"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/medal3"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/medal3"
+                app:layout_constraintBottom_toBottomOf="@+id/bg3"
+                app:layout_constraintEnd_toEndOf="@+id/bg3"
+                app:layout_constraintHorizontal_bias="0.533"
+                app:layout_constraintStart_toStartOf="@+id/bg3"
+                app:layout_constraintTop_toTopOf="@+id/bg3"
+                app:layout_constraintVertical_bias="0.177" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

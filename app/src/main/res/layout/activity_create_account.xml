@@ -5,31 +5,90 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <TextView
-        android:layout_width="wrap_content"
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="회원가입 > 프로필 설정"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="20dp"
-        android:textColor="@color/black"
-        android:textSize="28sp"/>
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/backButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/back_arrow" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="회원가입"
+            android:textSize="28sp" />
+    </LinearLayout>
 
     <ImageView
+        android:id="@+id/profileImage"
         android:layout_width="120dp"
         android:layout_height="120dp"
         android:layout_gravity="center"
+        android:padding="10dp"
         android:src="@drawable/snow"
         android:layout_marginTop="30dp"
         android:background="@drawable/image_border_line"
         />
 
-    <GridLayout
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="30dp"
+        >
+        <RadioButton
+            android:id="@+id/snow"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="30dp"
+            android:background="@drawable/snow_selector_radio_button"
+            android:button="@null"
+            android:checked="true"/>
+        <RadioButton
+            android:id="@+id/snow1"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="30dp"
+            android:background="@drawable/snow1_selector_radio_button"
+            android:button="@null"/>
+        <RadioButton
+            android:id="@+id/snow2"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="30dp"
+            android:background="@drawable/snow2_selector_radio_button"
+            android:button="@null"/>
+        <RadioButton
+            android:id="@+id/snow3"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="30dp"
+            android:background="@drawable/snow3_selector_radio_button"
+            android:button="@null"/>
+        <RadioButton
+            android:id="@+id/snow4"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/snow4_selector_radio_button"
+            android:button="@null"/>
+
+    </RadioGroup>
+    <!--<GridLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:columnCount="5"
         android:layout_marginTop="30dp"
         >
-        <!--라디오버튼으로 변경-->
+        &lt;!&ndash;라디오버튼으로 변경&ndash;&gt;
         <ImageView
             android:layout_width="15dp"
             android:layout_height="45dp"
@@ -42,7 +101,7 @@
             android:layout_width="15dp"
             android:layout_height="45dp"
             android:layout_columnWeight="1"
-            android:src="@drawable/snow"
+            android:src="@drawable/snow1"
             android:background="@drawable/image_border_line"
             android:layout_marginLeft="20dp"
             />
@@ -50,7 +109,7 @@
             android:layout_width="15dp"
             android:layout_height="45dp"
             android:layout_columnWeight="1"
-            android:src="@drawable/snow"
+            android:src="@drawable/snow2"
             android:background="@drawable/image_border_line"
             android:layout_marginLeft="20dp"
             />
@@ -58,7 +117,7 @@
             android:layout_width="15dp"
             android:layout_height="45dp"
             android:layout_columnWeight="1"
-            android:src="@drawable/snow"
+            android:src="@drawable/snow3"
             android:background="@drawable/image_border_line"
             android:layout_marginLeft="20dp"
             />
@@ -67,13 +126,13 @@
             android:layout_height="45dp"
             android:layout_columnWeight="1"
             android:layout_marginRight="40dp"
-            android:src="@drawable/snow"
+            android:src="@drawable/snow4"
             android:background="@drawable/image_border_line"
             android:layout_marginLeft="20dp"
             />
 
 
-    </GridLayout>
+    </GridLayout>-->
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -98,7 +157,8 @@
             android:textSize="16sp"
             android:padding="10dp"
             android:background="@drawable/text_border"
-            android:inputType="textEmailAddress"/>
+            android:inputType="textEmailAddress"
+            android:hint="example@sookmyung.ac.kr"/>
     </LinearLayout>
 
     <LinearLayout
@@ -124,7 +184,7 @@
             android:background="@drawable/text_border"
             android:layout_marginRight="20dp"
             android:layout_marginLeft="20dp"
-            android:hint="6자리 이상"
+            android:hint="8자리 이상"
             android:textSize="16sp"
             android:inputType="textPassword"
             />
