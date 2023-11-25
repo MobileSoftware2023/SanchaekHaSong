@@ -20,6 +20,8 @@ class MyPageActivity : AppCompatActivity() {
         binding = ActivityMyPageBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        auth = FirebaseAuth.getInstance()
+
         val requestLauncherForProfileImage : ActivityResultLauncher<Intent> = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult())
         {
@@ -54,7 +56,6 @@ class MyPageActivity : AppCompatActivity() {
 
     //logout, deleteaccount 완성x
     fun logout(){
-        Log.d("srb", "로그아웃 시도")
         auth.signOut()
         Toast.makeText(this, "${binding.username} 님 로그아웃되셨습니다.", Toast.LENGTH_SHORT).show()
         val intent : Intent = Intent(this, LoginActivity::class.java)
@@ -63,7 +64,6 @@ class MyPageActivity : AppCompatActivity() {
 
     fun deleteAccount(){
        auth.currentUser!!.delete().addOnCompleteListener{ task ->
-            Log.d("srb", "탈퇴완료")
             if(task.isSuccessful){
                 Toast.makeText(this, "탈퇴 완료", Toast.LENGTH_SHORT).show()
                 LoginActivity().auth.signOut()
