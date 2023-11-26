@@ -11,6 +11,7 @@ import com.example.sanchaekhasong.MainActivity
 import com.example.sanchaekhasong.databinding.ActivityMyPageBinding
 import com.example.sanchaekhasong.login.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 
 class MyPageActivity : AppCompatActivity() {
     lateinit var binding : ActivityMyPageBinding
@@ -19,6 +20,7 @@ class MyPageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMyPageBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
 
         auth = FirebaseAuth.getInstance()
 
@@ -66,7 +68,7 @@ class MyPageActivity : AppCompatActivity() {
        auth.currentUser!!.delete().addOnCompleteListener{ task ->
             if(task.isSuccessful){
                 Toast.makeText(this, "탈퇴 완료", Toast.LENGTH_SHORT).show()
-                LoginActivity().auth.signOut()
+                auth.signOut()
                 val intent : Intent = Intent(this, LoginActivity::class.java)
                 startActivity(intent)
             }

@@ -41,20 +41,23 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:background="@drawable/coin_bg"
                     android:gravity="center"
+                    android:background="@drawable/coin_bg_full"
                     android:padding="5dp">
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/coin" />
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:src="@drawable/coin"
+                        android:layout_marginLeft="5dp"
+                        />
                     <TextView
                         android:id="@+id/point"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="5dp"
-                        android:text="560 C"
-                        android:textSize="20sp" />
+                        android:text="0 C"
+                        android:textSize="20sp"
+                        android:padding="5dp" />
                 </LinearLayout>
 
                 <ImageButton
