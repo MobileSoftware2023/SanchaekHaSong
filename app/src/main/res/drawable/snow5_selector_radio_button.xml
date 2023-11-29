@@ -3,7 +3,7 @@
     <item android:state_checked="true">
         <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
             <item android:drawable="@drawable/image_border_line_transparent" />
-            <item android:drawable="@drawable/snow"
+            <item android:drawable="@drawable/snow5"
                 android:left="4dp"
                 android:right="4dp"
                 android:top="4dp"
@@ -24,7 +24,7 @@
     <item android:state_checked="false">
         <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
             <item android:drawable="@drawable/image_border_line_transparent" />
-            <item android:drawable="@drawable/snow"
+            <item android:drawable="@drawable/snow5"
                 android:left="4dp"
                 android:right="4dp"
                 android:top="4dp"

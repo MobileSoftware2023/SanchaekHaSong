@@ -18,6 +18,14 @@ class LoginActivity : AppCompatActivity() {
     lateinit var auth: FirebaseAuth
     lateinit var username: String
 
+    override fun onStart() {
+        super.onStart()
+        if(auth.currentUser!= null){
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
@@ -84,7 +92,10 @@ class LoginActivity : AppCompatActivity() {
                                     myData.child("profileImage").setValue("$profileImage")
                                     myData.child("college").setValue("$college")
                                     myData.child("point").setValue(0)
-
+                                    val initProfileImage = listOf<String>("snow1", "snow2", "snow3", "snow4", "snow5")
+                                    myData.child("profileImageList").setValue(initProfileImage)
+                                    myData.child("boughtCouponList").setValue(true)
+                                    myData.child("boughtProfileImageList").setValue(true)
                                     Toast.makeText(this, "회원가입 성공, 전송된 메일을 확인해 주세요",
                                         Toast.LENGTH_SHORT).show()
                                 }else {

@@ -5,13 +5,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import com.example.sanchaekhasong.MainActivity
 import com.example.sanchaekhasong.databinding.ActivityMyPageBinding
 import com.example.sanchaekhasong.login.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class MyPageActivity : AppCompatActivity() {
     lateinit var binding : ActivityMyPageBinding
@@ -23,12 +24,26 @@ class MyPageActivity : AppCompatActivity() {
 
 
         auth = FirebaseAuth.getInstance()
+        val database = FirebaseDatabase.getInstance()
+        val username = auth.currentUser?.email.toString().substringBeforeLast('@')
+        val myData = database.getReference("$username")
 
-        val requestLauncherForProfileImage : ActivityResultLauncher<Intent> = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult())
-        {
-            //프로필 이미지 가져오기
-        }
+        myData.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val profileImage = dataSnapshot.child("profileImage").value.toString()
+                val resId = resources.getIdentifier(profileImage, "drawable", packageName)
+                binding.profileImage.setImageResource(resId)
+                binding.username.text = username
+                val college = dataSnapshot.child("college").value.toString()
+                binding.college.text = college
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                val code = error.code
+                val message = error.message
+                Log.e("TAG_DB", "onCancelled by $code : $message")
+            }
+        })
 
         binding.backButton.setOnClickListener {
             val intent : Intent = Intent(this, MainActivity::class.java)
@@ -36,8 +51,8 @@ class MyPageActivity : AppCompatActivity() {
         }
 
         binding.editButton.setOnClickListener {
-            val intent: Intent = Intent(this, SetProfileImageActivity::class.java)
-            requestLauncherForProfileImage.launch(intent)
+            val intent : Intent = Intent(this, SetProfileImageActivity::class.java)
+            startActivity(intent)
         }
 
         binding.couponBoxButton.setOnClickListener {
@@ -46,37 +61,45 @@ class MyPageActivity : AppCompatActivity() {
         }
 
         binding.logoutButton.setOnClickListener {
-            logout()
+            logout(username)
         }
 
         binding.deleteAccountButton.setOnClickListener {
-            deleteAccount()
+            deleteAccount(username)
         }
 
 
     }
 
-    //logout, deleteaccount 완성x
-    fun logout(){
+    //deleteaccount test 필요
+    fun logout(username : String){
         auth.signOut()
-        Toast.makeText(this, "${binding.username} 님 로그아웃되셨습니다.", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "${username} 님 로그아웃되셨습니다.", Toast.LENGTH_SHORT).show()
         val intent : Intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
     }
 
-    fun deleteAccount(){
+    fun deleteAccount(username: String){
        auth.currentUser!!.delete().addOnCompleteListener{ task ->
             if(task.isSuccessful){
                 Toast.makeText(this, "탈퇴 완료", Toast.LENGTH_SHORT).show()
                 auth.signOut()
-                val intent : Intent = Intent(this, LoginActivity::class.java)
-                startActivity(intent)
+                val database = FirebaseDatabase.getInstance()
+                val myData = database.getReference("$username")
+                myData.removeValue().addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val intent : Intent = Intent(this, LoginActivity::class.java)
+                        startActivity(intent)
+                        Log.d("Firebase", "경로 삭제 성공")
+                    } else {
+                        Log.e("Firebase", "경로 삭제 실패", task.exception)
+                    }
+                }
             }
-            else
+            else {
                 Toast.makeText(this, task.exception.toString(), Toast.LENGTH_SHORT).show()
-
+            }
         }
     }
-
 
 }

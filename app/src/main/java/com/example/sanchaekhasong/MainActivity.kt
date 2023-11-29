@@ -4,6 +4,8 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
@@ -18,6 +20,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
 class MainActivity : AppCompatActivity() {
+    var initTime = 0L
     lateinit var binding : ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +29,6 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
 
         val auth = FirebaseAuth.getInstance().currentUser
-        //db에서 로그인된 정보 가져오기
         val database = FirebaseDatabase.getInstance()
         val username = auth?.email?.substringBeforeLast('@')
         val myData = database.getReference("$username")
@@ -50,12 +52,6 @@ class MainActivity : AppCompatActivity() {
 
         })
 
-        val requestLauncherForMyPage : ActivityResultLauncher<Intent> = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult())
-        {
-            //프로필 이미지 가져오기 --> 필요없음
-        }
-
         //Home?Main?Fragment완성시 setFragment를 Home으로 변경
         setFragment(RankingFragment())
 
@@ -71,9 +67,20 @@ class MainActivity : AppCompatActivity() {
 
         binding.mypageButton.setOnClickListener {
             val intent: Intent = Intent(this, MyPageActivity::class.java)
-            requestLauncherForMyPage.launch(intent)
+            startActivity(intent)
         }
 
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+            if(System.currentTimeMillis() - initTime > 3000){
+                Toast.makeText(this, "종료하려면 한 번 더 누르세요.", Toast.LENGTH_SHORT).show()
+                initTime = System.currentTimeMillis()
+                return true
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
     private fun setFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()

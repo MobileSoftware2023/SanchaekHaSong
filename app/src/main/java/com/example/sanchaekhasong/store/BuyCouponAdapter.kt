@@ -1,7 +1,7 @@
 package com.example.sanchaekhasong.store
 
 import android.app.AlertDialog
-import android.content.Context
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,8 +21,7 @@ class BuyCouponAdapter(val imgDatas : MutableList<String>, val nameDatas : Mutab
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val binding = (holder as BuyCouponViewHolder).binding
-        //imgDatas에서 가져오기
-        binding.couponImage.setImageResource(R.drawable.coupon)
+        binding.couponImage.setImageResource(R.drawable.compose_coffee)
         binding.couponImage.setTag(position)
         binding.couponName.text = nameDatas[position]
         binding.couponPrice.text = priceDatas[position].toString() + " C"
@@ -34,12 +33,15 @@ class BuyCouponAdapter(val imgDatas : MutableList<String>, val nameDatas : Mutab
 
             val alertDialog = AlertDialog.Builder(holder.itemView.context, R.style.RoundedCornersAlertDialog).run{
                 setView(dbinding.root)
-                dbinding.buyText.text = nameDatas[position] + " 을/를 구매할까요?"
+                dbinding.buyText.text = nameDatas[position] + " 쿠폰을 구매할까요?"
                 val dialog = show()
+
                 val window = dialog.window
-                val width = holder.itemView.context.resources.displayMetrics.widthPixels *.85
-                val height = holder.itemView.context.resources.displayMetrics.heightPixels * 0.25
-                window?.setLayout(width.toInt(), height.toInt())
+                val width = holder.itemView.context.resources.displayMetrics.widthPixels * 0.85
+
+
+                val height = ViewGroup.LayoutParams.WRAP_CONTENT
+                window?.setLayout(width.toInt(), height)
                 dialog
             }
             dbinding.confirmButton.setOnClickListener {

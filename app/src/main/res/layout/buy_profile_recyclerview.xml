@@ -14,12 +14,12 @@
         android:layout_margin="10dp"
         android:background="@null"
         android:foreground="@drawable/image_border_line_transparent" />
+
     <TextView
         android:id="@+id/couponName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="컴포즈 커피 3000원권"
-        android:layout_marginBottom="5dp"/>
+        android:layout_marginBottom="5dp" />
 
     <LinearLayout
         android:layout_width="wrap_content"

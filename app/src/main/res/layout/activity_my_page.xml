@@ -14,7 +14,7 @@
             android:id="@+id/backButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="10dp"
             android:layout_marginTop="15dp"
             android:background="@drawable/back_arrow" />
 
@@ -36,30 +36,36 @@
             android:id="@+id/username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="112dp"
-            android:layout_marginBottom="76dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="82dp"
             android:elevation="1dp"
             android:text="noonsong123"
             android:textSize="25sp"
             app:layout_constraintBottom_toBottomOf="@+id/profileBg"
-            app:layout_constraintEnd_toEndOf="@+id/profileBg" />
+            app:layout_constraintEnd_toEndOf="@+id/profileBg"
+            app:layout_constraintStart_toStartOf="@+id/profileBg"
+            app:layout_constraintTop_toBottomOf="@+id/profileImage" />
 
         <TextView
             android:id="@+id/college"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="164dp"
+            android:layout_marginTop="10dp"
             android:layout_marginBottom="56dp"
+            android:elevation="1dp"
             android:text="공과대학"
             app:layout_constraintBottom_toBottomOf="@+id/profileBg"
             app:layout_constraintEnd_toEndOf="@+id/profileBg"
-            android:elevation="1dp"/>
+            app:layout_constraintStart_toStartOf="@+id/profileBg"
+            app:layout_constraintTop_toBottomOf="@+id/username" />
 
 
         <ImageView
             android:id="@+id/profileBg"
-            android:layout_width="380dp"
+            android:layout_width="match_parent"
             android:layout_height="180dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
             android:background="@drawable/profile_bg"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -73,7 +79,7 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:background="@drawable/image_border_line"
-            android:src="@drawable/snow"
+            android:src="@drawable/snow1"
             android:padding="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -88,11 +94,13 @@
             android:layout_height="25dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
+            android:layout_marginStart="90dp"
             android:layout_marginTop="5dp"
-            android:layout_marginEnd="164dp"
+            android:layout_marginEnd="30dp"
             android:background="@drawable/edit_button_border"
             app:layout_constraintBottom_toBottomOf="@+id/profileImage"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.076"
             tools:ignore="MissingConstraints" />
@@ -159,8 +167,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:text="단과대 변경은 qwerty@gmail.com으로 문의해주세요"
-        android:textColor="#A9A9A9"/>
+        android:gravity="center"
+        android:text="단과대 변경은 sanchaekhasong@gmail.com으로 문의해주세요"
+        android:textColor="#A9A9A9" />
 
 
 </LinearLayout>

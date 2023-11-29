@@ -9,6 +9,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="70dp"
         android:layout_marginEnd="200dp"
         android:layout_marginBottom="20dp"
         android:gravity="center"
@@ -19,13 +20,13 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/college1"
+            android:id="@+id/college2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="이과대학" />
 
         <TextView
-            android:id="@+id/walkCount1"
+            android:id="@+id/walkCount2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="21,555걸음" />
@@ -68,6 +69,7 @@
         android:id="@+id/linearLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="70dp"
         android:layout_marginBottom="100dp"
         android:gravity="center"
         android:orientation="vertical"
@@ -77,13 +79,13 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/college2"
+            android:id="@+id/college1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="공과대학" />
 
         <TextView
-            android:id="@+id/walkCount2"
+            android:id="@+id/walkCount1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="26,555걸음" />
@@ -126,7 +128,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="200dp"
-        android:layout_marginTop="130dp"
+        android:layout_marginTop="200dp"
         android:layout_marginBottom="80dp"
         android:gravity="center"
         android:orientation="vertical"

@@ -14,7 +14,7 @@
             android:id="@+id/backButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="10dp"
             android:layout_marginTop="15dp"
             android:background="@drawable/back_arrow" />
 
@@ -32,7 +32,7 @@
         android:layout_height="120dp"
         android:layout_gravity="center"
         android:padding="10dp"
-        android:src="@drawable/snow"
+        android:src="@drawable/snow1"
         android:layout_marginTop="30dp"
         android:background="@drawable/image_border_line"
         />
@@ -50,7 +50,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginRight="30dp"
-            android:background="@drawable/snow_selector_radio_button"
+            android:background="@drawable/snow1_selector_radio_button"
             android:button="@null"
             android:checked="true"/>
         <RadioButton
@@ -58,27 +58,27 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginRight="30dp"
-            android:background="@drawable/snow1_selector_radio_button"
+            android:background="@drawable/snow2_selector_radio_button"
             android:button="@null"/>
         <RadioButton
             android:id="@+id/snow2"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginRight="30dp"
-            android:background="@drawable/snow2_selector_radio_button"
+            android:background="@drawable/snow3_selector_radio_button"
             android:button="@null"/>
         <RadioButton
             android:id="@+id/snow3"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginRight="30dp"
-            android:background="@drawable/snow3_selector_radio_button"
+            android:background="@drawable/snow4_selector_radio_button"
             android:button="@null"/>
         <RadioButton
             android:id="@+id/snow4"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@drawable/snow4_selector_radio_button"
+            android:background="@drawable/snow5_selector_radio_button"
             android:button="@null"/>
 
     </RadioGroup>

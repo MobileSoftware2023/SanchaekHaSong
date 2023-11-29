@@ -10,11 +10,8 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.RadioButton
-import com.example.sanchaekhasong.MainActivity
 import com.example.sanchaekhasong.R
 import com.example.sanchaekhasong.databinding.ActivityCreateAccountBinding
-import com.google.firebase.database.FirebaseDatabase
 
 class CreateAccountActivity : AppCompatActivity() {
     lateinit var binding : ActivityCreateAccountBinding
@@ -30,23 +27,23 @@ class CreateAccountActivity : AppCompatActivity() {
         binding.radioGroup.setOnCheckedChangeListener{ group, checkedID ->
             when (checkedID) {
                 binding.snow.id -> {
-                    binding.profileImage.setImageResource(R.drawable.snow)
+                    binding.profileImage.setImageResource(R.drawable.snow1)
                     binding.profileImage.setTag("snow")
                 }
                 binding.snow1.id -> {
-                    binding.profileImage.setImageResource(R.drawable.snow1)
+                    binding.profileImage.setImageResource(R.drawable.snow2)
                     binding.profileImage.setTag("snow1")
                 }
                 binding.snow2.id -> {
-                    binding.profileImage.setImageResource(R.drawable.snow2)
+                    binding.profileImage.setImageResource(R.drawable.snow3)
                     binding.profileImage.setTag("snow2")
                 }
                 binding.snow3.id -> {
-                    binding.profileImage.setImageResource(R.drawable.snow3)
+                    binding.profileImage.setImageResource(R.drawable.snow4)
                     binding.profileImage.setTag("snow3")
                 }
                 else -> {
-                    binding.profileImage.setImageResource(R.drawable.snow4)
+                    binding.profileImage.setImageResource(R.drawable.snow5)
                     binding.profileImage.setTag("snow4")
                 }
             }

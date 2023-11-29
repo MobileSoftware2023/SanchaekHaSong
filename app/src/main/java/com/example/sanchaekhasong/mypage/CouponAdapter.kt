@@ -11,7 +11,7 @@ import com.example.sanchaekhasong.databinding.CouponRecyclerviewBinding
 
 class CouponViewHolder(val binding: CouponRecyclerviewBinding) : RecyclerView.ViewHolder(binding.root)
 
-class CouponAdapter(val imgDatas : MutableList<String>, val nameDatas : MutableList<String>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class CouponAdapter(var imgDatas : List<String>, var nameDatas : List<String>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     lateinit var context : Context
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
@@ -27,14 +27,26 @@ class CouponAdapter(val imgDatas : MutableList<String>, val nameDatas : MutableL
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val binding = (holder as CouponViewHolder).binding
-        //imgDatas에서 가져오기
-        binding.couponImage.setImageResource(R.drawable.coupon)
+
+        val fileName = imgDatas[position]
+        val resId = binding.couponImage.context.resources.getIdentifier(
+            fileName, "drawable", binding.couponImage.context.packageName
+        )
+        binding.couponImage.setTag(fileName)
+        binding.couponImage.setImageResource(resId)
         binding.couponName.text = nameDatas[position]
         
         binding.couponImage.setOnClickListener {
             val intent : Intent = Intent(context, CouponDescriptionActivity::class.java)
-            //putStringExtra?로 이미지 string전달하고 해당 액티비티에서 변경
+            val fileName = binding.couponImage.getTag().toString()
+            intent.putExtra("coupon_desc", fileName + "desc")
             context.startActivity(intent)
         }
+    }
+
+    fun updateData(newCouponImageList: List<String>, newCouponNameList : List<String>) {
+        imgDatas = newCouponImageList
+        nameDatas = newCouponNameList
+        notifyDataSetChanged()
     }
 }
