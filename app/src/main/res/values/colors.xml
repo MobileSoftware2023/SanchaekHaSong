@@ -3,4 +3,13 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="app_blue">#008BFF</color>
+    <color name="white_blue">#D6EEFF</color>
+    <color name="grey">#666</color>
+    <color name="dark_grey">#2F2F2F</color>
+    <color name="pale_yellow">#FFF3C9</color>
+    <color name="mustard">#FFAC33</color>
+    <color name="white_grey">#D9D9D9</color>
+    <color name="brown">#6D4534</color>
+    <color name="yellow">#FFEEB0</color>
+
 </resources>

@@ -1,0 +1,8 @@
+<!-- res/drawable/gradient_rectangle.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:startColor="#00E0DE"
+        android:endColor="#FFD983"
+        android:angle="0"/>
+    <corners android:radius="0dp"/> <!-- 모서리 반경을 조절할 수 있습니다. 0으로 설정하면 사각형이 됩니다. -->
+</shape>
