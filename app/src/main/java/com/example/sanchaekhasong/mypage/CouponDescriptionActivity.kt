@@ -13,7 +13,11 @@ class CouponDescriptionActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         //intent로 받아온 값으로 변경
-        binding.couponImg.setImageResource(R.drawable.coupon_desc)
+        val fileName = intent.getStringExtra("coupon_desc")
+        val resId = resources.getIdentifier(
+            fileName, "drawable", packageName
+        )
+        binding.couponImg.setImageResource(resId)
         
         binding.closeButton.setOnClickListener {
             val intent : Intent = Intent(this, CouponBoxActivity::class.java)

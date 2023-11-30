@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
+import android.widget.Toast
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,12 +17,18 @@ import com.example.sanchaekhasong.main.HomeFragment
 import com.example.sanchaekhasong.mypage.MyPageActivity
 import com.example.sanchaekhasong.ranking.RankingFragment
 import com.example.sanchaekhasong.store.StoreFragment
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.fitness.Fitness
 import com.google.android.gms.fitness.FitnessOptions
 import com.google.android.gms.fitness.data.DataType
 
 class MainActivity : AppCompatActivity() {
+    var initTime = 0L
     lateinit var binding : ActivityMainBinding
     private val TAG = "BasicRecordingApi"
 
@@ -40,12 +48,32 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-        val requestLauncherForMyPage : ActivityResultLauncher<Intent> = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult())
-        {
-            //프로필 이미지 가져오기
-        }
 
+        val auth = FirebaseAuth.getInstance().currentUser
+        val database = FirebaseDatabase.getInstance()
+        val username = auth?.email?.substringBeforeLast('@')
+        val myData = database.getReference("$username")
+        myData.addValueEventListener(object :ValueEventListener{
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val profileImage = dataSnapshot.child("profileImage").value.toString()
+                val resId = resources.getIdentifier(profileImage, "drawable", packageName)
+                binding.profileImage.setImageResource(resId)
+                binding.username.text = username
+
+                val point = dataSnapshot.child("point").value.toString()
+                binding.point.text = point + " C"
+
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                val code = error.code
+                val message = error.message
+                Log.e("TAG_DB", "onCancelled by $code : $message")
+            }
+
+        })
+        //Home?Main?Fragment완성시 setFragment를 Home으로 변경
+        setFragment(HomeFragment())
 
         if (!GoogleSignIn.hasPermissions(GoogleSignIn.getLastSignedInAccount(this), fitnessOptions)) {
             GoogleSignIn.requestPermissions(
@@ -57,8 +85,7 @@ class MainActivity : AppCompatActivity() {
             subscribe()
         }
 
-        //Home?Main?Fragment완성시 setFragment를 Home으로 변경
-        setFragment(HomeFragment())
+
 
         binding.bottomNavigationview.setOnItemSelectedListener { item ->
             when(item.itemId) {
@@ -72,9 +99,20 @@ class MainActivity : AppCompatActivity() {
 
         binding.mypageButton.setOnClickListener {
             val intent: Intent = Intent(this, MyPageActivity::class.java)
-            requestLauncherForMyPage.launch(intent)
+            startActivity(intent)
         }
 
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+            if(System.currentTimeMillis() - initTime > 3000){
+                Toast.makeText(this, "종료하려면 한 번 더 누르세요.", Toast.LENGTH_SHORT).show()
+                initTime = System.currentTimeMillis()
+                return true
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
     private fun setFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()

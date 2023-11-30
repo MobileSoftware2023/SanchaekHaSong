@@ -42,8 +42,8 @@ class RankingFragment : Fragment() {
                 val dialog = show()
                 val window = dialog.window
                 val width = resources.displayMetrics.widthPixels * 0.7
-                val height = resources.displayMetrics.heightPixels * 0.4
-                window?.setLayout(width.toInt(), height.toInt())
+                val height = ViewGroup.LayoutParams.WRAP_CONTENT
+                window?.setLayout(width.toInt(), height)
                 dialog
             }
             dialogBinding.closeButton.setOnClickListener {

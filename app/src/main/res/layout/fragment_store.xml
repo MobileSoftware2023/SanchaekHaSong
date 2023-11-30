@@ -60,6 +60,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="40dp"
             android:text="눈 송 상 점"
+            android:fontFamily="@font/smu_snowflake"
             android:textSize="30sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/imageView5"

@@ -16,7 +16,8 @@
         android:text="산책하송!"
         android:textSize="45sp"
         android:textStyle="bold"
-        android:textColor="#FFFFFF"/>
+        android:textColor="#FFFFFF"
+        android:fontFamily="@font/smu_snowflake"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -24,6 +25,7 @@
         android:layout_marginTop="10dp"
         android:gravity="center"
         android:text="Healthy &amp; Sound Campus Life"
+        android:fontFamily="@font/smu_snowflake"
         android:textColor="#FFFFFF"/>
 
     <EditText
