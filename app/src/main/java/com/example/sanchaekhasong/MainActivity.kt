@@ -72,7 +72,8 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
-
+        //Home?Main?Fragment완성시 setFragment를 Home으로 변경
+        setFragment(HomeFragment())
 
         if (!GoogleSignIn.hasPermissions(GoogleSignIn.getLastSignedInAccount(this), fitnessOptions)) {
             GoogleSignIn.requestPermissions(
@@ -84,8 +85,7 @@ class MainActivity : AppCompatActivity() {
             subscribe()
         }
 
-        //Home?Main?Fragment완성시 setFragment를 Home으로 변경
-        setFragment(HomeFragment())
+
 
         binding.bottomNavigationview.setOnItemSelectedListener { item ->
             when(item.itemId) {

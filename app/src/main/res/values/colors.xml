@@ -3,11 +3,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="app_blue">#008BFF</color>
-    <color name="rank1">#FFEAA0</color>
-    <color name="rank2">#CDE4FF</color>
-    <color name="rank3">#FFD5B6</color>
-    <color name="rank_other">#EEEEEE</color>
-    <color name="shade">#808080</color>
     <color name="white_blue">#D6EEFF</color>
     <color name="grey">#666</color>
     <color name="dark_grey">#2F2F2F</color>
@@ -16,5 +11,11 @@
     <color name="white_grey">#D9D9D9</color>
     <color name="brown">#6D4534</color>
     <color name="yellow">#FFEEB0</color>
+    <color name="rank1">#FFEAA0</color>
+    <color name="rank2">#CDE4FF</color>
+    <color name="rank3">#FFD5B6</color>
+    <color name="rank_other">#EEEEEE</color>
+    <color name="shade">#808080</color>
+    
 
 </resources>
