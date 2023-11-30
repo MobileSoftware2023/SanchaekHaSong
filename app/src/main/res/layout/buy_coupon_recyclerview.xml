@@ -19,22 +19,20 @@
         android:id="@+id/couponName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="컴포즈 커피 3000원권"
         android:layout_marginBottom="5dp"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:src="@drawable/coin"
             android:layout_marginRight="5dp"/>
         <TextView
             android:id="@+id/couponPrice"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="30000 C"/>
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
 

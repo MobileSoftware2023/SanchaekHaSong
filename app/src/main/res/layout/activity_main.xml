@@ -24,13 +24,11 @@
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:padding="3dp"
-                    android:src="@drawable/snow1"
                     android:background="@drawable/image_border_line"/>
                 <TextView
                     android:id="@+id/username"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="noonsong123"
                     android:textSize="20sp"
                     android:layout_marginLeft="10dp" />
                 <LinearLayout
@@ -42,8 +40,9 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center"
-                    android:background="@drawable/coin_bg_full"
-                    android:padding="5dp">
+                    android:background="@drawable/dialog_button"
+                    android:backgroundTint="#ECECEC"
+                    android:padding="2dp">
                     <ImageView
                         android:layout_width="25dp"
                         android:layout_height="25dp"
@@ -62,8 +61,9 @@
 
                 <ImageButton
                     android:id="@+id/mypage_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:scaleType="fitCenter"
                     android:src="@drawable/icon_mypage"
                     android:background="@null"
                     android:layout_marginLeft="10dp"

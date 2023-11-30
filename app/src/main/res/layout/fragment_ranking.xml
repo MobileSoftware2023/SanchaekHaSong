@@ -26,8 +26,9 @@
 
         <ImageButton
             android:id="@+id/questionButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:scaleType="fitCenter"
             android:background="@null"
             android:src="@drawable/icon_question"
             app:layout_constraintBottom_toBottomOf="parent"
