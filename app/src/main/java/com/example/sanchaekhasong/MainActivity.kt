@@ -87,4 +87,5 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.containers, fragment)
             .commit()
     }
+
 }
