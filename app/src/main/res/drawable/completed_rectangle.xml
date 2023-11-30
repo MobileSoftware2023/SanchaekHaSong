@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 테두리 -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/yellow" /> <!-- 내부는 노란색 -->
+            <stroke
+                android:width="4dp"
+                android:color="@color/mustard" /> <!-- 테두리는 진한 노란색 -->
+            <corners android:radius="8dp" /> <!-- 모서리를 둥글게 -->
+        </shape>
+
+    </item>
+    <!-- 테두리에 빛나는 효과 -->
+    <item android:right="1dp" android:left="1dp" android:top="1dp" android:bottom="1dp">
+        <shape>
+            <solid android:color="#40FFFF00" /> <!-- 빛나는 효과 색상 및 투명도 -->
+        </shape>
+    </item>
+    //
+</layer-list>
