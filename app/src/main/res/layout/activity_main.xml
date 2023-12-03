@@ -48,12 +48,14 @@
                         android:layout_height="25dp"
                         android:src="@drawable/coin"
                         android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
                         />
                     <TextView
                         android:id="@+id/point"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
                         android:text="0 C"
                         android:textSize="20sp"
                         android:padding="5dp" />
@@ -98,5 +100,5 @@
             app:itemIconTint="@drawable/tab_color"/>
 
     </LinearLayout>
-    ㄴ
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

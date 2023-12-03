@@ -80,6 +80,43 @@
         android:textAllCaps="false"
         android:background="#00FF0000"/>
 
+    <Button
+        android:id="@+id/createDBBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/button_style"
+        android:text="create db"
+        android:textColor="#565656"
+        android:textAllCaps="false" />
+
+    <EditText
+        android:id="@+id/collegeText"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:textColorHint="@color/white"
+        android:textColor="@color/white"
+        android:padding="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:textSize="16sp"
+        android:hint="단과대저장 ex. 공과대학"
+        android:inputType="text"/>
+    <EditText
+        android:id="@+id/profileImageText"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:textColorHint="@color/white"
+        android:textColor="@color/white"
+        android:padding="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:textSize="16sp"
+        android:hint="프로필사진 저장 ex. snow1"
+        android:inputType="text"/>
+
 
 
 </LinearLayout>

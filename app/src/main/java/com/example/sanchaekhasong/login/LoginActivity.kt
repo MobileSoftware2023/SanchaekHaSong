@@ -76,7 +76,9 @@ class LoginActivity : AppCompatActivity() {
                 }
         }
 
-
+        binding.createDBBtn.setOnClickListener {
+            setData("${ binding.emailText.text}", "${binding.collegeText.text}", "${binding.profileImageText.text}")
+        }
     }
 
     private fun createAccount(email: String, password: String, profileImage:String, college : String) {
@@ -115,7 +117,8 @@ class LoginActivity : AppCompatActivity() {
         myData.child("point").setValue(0)
         val initProfileImage = listOf<String>("snow1", "snow2", "snow3", "snow4", "snow5")
         myData.child("profileImageList").setValue(initProfileImage)
-        myData.child("boughtCouponList").setValue(true)
+        myData.child("boughtCouponImageList").setValue(true)
+        myData.child("boughtCouponNameList").setValue(true)
         myData.child("boughtProfileImageList").setValue(true)
         myData.child("sumWalkCount").setValue(0)
         val challengeMissionList = listOf<String>(
@@ -130,12 +133,16 @@ class LoginActivity : AppCompatActivity() {
             "10,000 걸음 이상 걸어요.", "ㅇㅇ 루트를 1회 걸어요.",
             "ㅁㅁ 루트를 1회 걸어요.", "ㄹㄹ 루트를 1회 걸어요."
         )
+        myData.child("dailyQuest").child("mission").setValue(dailyQuestList)
+
+
+        Log.d("srb", "단과대 : $college")
         //단과대 학생수 등록
         val myData1 = database.getReference("@college").child("$college")
         myData1.addListenerForSingleValueEvent(object :
             ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val currentValue = dataSnapshot.value as Int
+                val currentValue = dataSnapshot.value as Long
                 val newValue = currentValue + 1
                 myData1.setValue(newValue)
             }
@@ -144,6 +151,10 @@ class LoginActivity : AppCompatActivity() {
                 Log.e("TAG_DB", "onCancelled", databaseError.toException())
             }
         })
+        //개인별 걸음수 data만 따로 등록 : @ranking - username : sumWalkCount
+        val myData2 = database.getReference("@ranking").child("$username")
+        myData2.setValue(0)
+
     }
 
     private fun isSchoolDomain(email : String? ): Boolean {

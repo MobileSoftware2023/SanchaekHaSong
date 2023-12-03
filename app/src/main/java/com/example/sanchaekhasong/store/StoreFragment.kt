@@ -13,8 +13,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.example.sanchaekhasong.R
 import com.example.sanchaekhasong.databinding.FragmentStoreBinding
-import com.example.sanchaekhasong.ranking.CollegeRankingFragment
-import com.example.sanchaekhasong.ranking.PersonalRankingFragment
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 

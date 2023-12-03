@@ -42,8 +42,8 @@ class CouponImageFragment : Fragment() {
 
         myData.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                couponImageList = dataSnapshot.child("couponImageList").value as? List<String> ?: emptyList()
-                couponNameList = dataSnapshot.child("couponNameList").value as? List<String> ?: emptyList()
+                couponImageList = dataSnapshot.child("boughtCouponImageList").value as? List<String> ?: emptyList()
+                couponNameList = dataSnapshot.child("boughtCouponNameList").value as? List<String> ?: emptyList()
                 couponAdapter.updateData(couponImageList, couponNameList)
             }
 

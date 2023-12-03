@@ -8,20 +8,21 @@
 
     <ImageButton
         android:id="@+id/closeButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
         android:background="@null"
+        android:scaleType="fitCenter"
         android:src="@drawable/icon_close"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/couponImg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/compose_coffee_desc"
+        android:layout_width="300dp"
+        android:layout_height="600dp"
+        android:src="@drawable/gongcha_strawberry_desc"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

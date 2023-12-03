@@ -6,9 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
 import android.widget.Toast
-import android.widget.TextView
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.sanchaekhasong.databinding.ActivityMainBinding
@@ -104,16 +101,16 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if(keyCode == KeyEvent.KEYCODE_BACK){
-            if(System.currentTimeMillis() - initTime > 3000){
-                Toast.makeText(this, "종료하려면 한 번 더 누르세요.", Toast.LENGTH_SHORT).show()
-                initTime = System.currentTimeMillis()
-                return true
-            }
+    override fun onBackPressed() {
+        if (System.currentTimeMillis() - initTime > 2000) {
+            Toast.makeText(this, "종료하려면 한 번 더 누르세요.", Toast.LENGTH_SHORT).show()
+            initTime = System.currentTimeMillis()
+        } else {
+            super.onBackPressed();
+            finish()
         }
-        return super.onKeyDown(keyCode, event)
     }
+
     private fun setFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.containers, fragment)

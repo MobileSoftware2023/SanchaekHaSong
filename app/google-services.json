@@ -21,6 +21,10 @@
             "package_name": "com.example.sanchaekhasong",
             "certificate_hash": "5312baadf5fcb2b53995b8f48e5a6904a3edb643"
           }
+        },
+        {
+          "client_id": "324124127368-5ob84q62o2bch2hga7pb7nki6froro5m.apps.googleusercontent.com",
+          "client_type": 3
         }
       ],
       "api_key": [
@@ -30,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "324124127368-5ob84q62o2bch2hga7pb7nki6froro5m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

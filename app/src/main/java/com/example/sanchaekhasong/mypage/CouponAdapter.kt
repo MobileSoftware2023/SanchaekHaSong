@@ -39,7 +39,7 @@ class CouponAdapter(var imgDatas : List<String>, var nameDatas : List<String>) :
         binding.couponImage.setOnClickListener {
             val intent : Intent = Intent(context, CouponDescriptionActivity::class.java)
             val fileName = binding.couponImage.getTag().toString()
-            intent.putExtra("coupon_desc", fileName + "desc")
+            intent.putExtra("coupon_desc", fileName + "_desc")
             context.startActivity(intent)
         }
     }
