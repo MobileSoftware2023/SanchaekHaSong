@@ -1,12 +1,15 @@
 package com.example.sanchaekhasong.main
 
+import android.content.Context
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.example.sanchaekhasong.OnDataChangeListener
 import com.example.sanchaekhasong.databinding.FragmentHomeBinding
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -15,17 +18,16 @@ import java.util.TimeZone
 
 
 class HomeFragment : Fragment() {
-    private var _binding: FragmentHomeBinding? = null
+    lateinit var binding:FragmentHomeBinding
     private lateinit var countdownTimer: CountDownTimer
-    private val binding get() = _binding!!
-
+    private var onDataChangeListener: OnDataChangeListener? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        val view = binding.root
+        binding=FragmentHomeBinding.inflate(inflater)
+
 
 
 
@@ -56,6 +58,8 @@ class HomeFragment : Fragment() {
                 val formattedTime = formatTime(millisUntilFinished)
                 if (currentDayOfWeek != Calendar.SUNDAY){
                     countdownTextView.text = " 오늘 ${getCurrentDate()} ,\n 랭킹 종료까지 ${formattedTime}"
+                } else {
+                    countdownTextView.text = " 랭킹 종료 순위 집계중..."
                 }
             }
 
@@ -65,7 +69,7 @@ class HomeFragment : Fragment() {
         }
 
         countdownTimer.start()
-        return view
+        return binding.root
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -98,7 +102,7 @@ class HomeFragment : Fragment() {
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
         // 현재 날짜에서 토요일까지의 일수 계산
         val daysUntilSaturday = (Calendar.SATURDAY - calendar.get(Calendar.DAY_OF_WEEK) + 7) % 7
-        calendar.add(Calendar.DAY_OF_YEAR, daysUntilSaturday)
+        calendar.add(Calendar.DAY_OF_YEAR, daysUntilSaturday + 1) // 일요일 자정으로 수정
         // 토요일 자정 설정
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         calendar.set(Calendar.MINUTE, 0)
@@ -106,7 +110,6 @@ class HomeFragment : Fragment() {
         calendar.set(Calendar.MILLISECOND, 0)
         return calendar.time
 
-        return calendar.time
     }
 
     private fun getCurrentDate(): String {
@@ -124,5 +127,24 @@ class HomeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         countdownTimer.cancel()
+    }
+
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        onDataChangeListener = context as? OnDataChangeListener
+            ?: throw ClassCastException("$context must implement OnDataChangeListener")
+    }
+
+    // 호출하는 부분
+    private fun someMethodWhereDataChanges(newData: String) {
+        onDataChangeListener?.onDataChanged(newData)
+    }
+
+    // 실제로 TextView 값을 변경하는 메서드
+    fun updateTextView(newText: String) {
+        // 여기에 TextView를 찾아서 값을 변경하는 코드 작성
+        Toast.makeText(this.requireContext(), "성공적으로 값 변경", Toast.LENGTH_SHORT).show()
+        binding.StepCount.text = newText
     }
 }
