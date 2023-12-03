@@ -1,27 +1,48 @@
 package com.example.sanchaekhasong.main
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.sanchaekhasong.OnDataChangeListener
 import com.example.sanchaekhasong.databinding.FragmentHomeBinding
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.fitness.Fitness
+import com.google.android.gms.fitness.FitnessOptions
+import com.google.android.gms.fitness.data.DataType
+import com.google.android.gms.fitness.request.DataReadRequest
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
+import java.util.concurrent.TimeUnit
 
 
 class HomeFragment : Fragment() {
     lateinit var binding:FragmentHomeBinding
     private lateinit var countdownTimer: CountDownTimer
     private var onDataChangeListener: OnDataChangeListener? = null
+    private val TAG = "BasicRecordingApi"
+    private val MY_PERMISSIONS_REQUEST_ACTIVITY_RECOGNITION_AND_LOCATION = 1
 
+
+    private val fitnessOptions = FitnessOptions.builder()
+        .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+        .addDataType(DataType.TYPE_STEP_COUNT_CUMULATIVE, FitnessOptions.ACCESS_READ)
+        .addDataType(DataType.TYPE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
+        .build()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -92,6 +113,23 @@ class HomeFragment : Fragment() {
         saturdayTextView.setOnClickListener { /* Saturday clicked */ }
         sundayTextView.setOnClickListener { /* Sunday clicked */ }
         // ... (다른 요일들의 클릭 이벤트 설정 추가)
+        // 1. 권한이 부여되지 않았을 경우
+        if (ContextCompat.checkSelfPermission(
+                this.requireContext(),
+                Manifest.permission.ACTIVITY_RECOGNITION
+            ) != PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(
+                this.requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // 권한이 부여되지 않았으므로 권한을 요청합니다.
+            requestActivityRecognitionAndLocationPermission()
+        } else {
+            // 권한이 이미 부여되었으므로 로직을 진행합니다.
+            // 예를 들어, 액티비티를 시작하거나 어떤 작업을 수행합니다.
+            startYourActivity()
+        }
     }
 
     private fun onDayClicked(stepCount: Int, distance: Double, calories: Double) {
@@ -129,22 +167,145 @@ class HomeFragment : Fragment() {
         countdownTimer.cancel()
     }
 
+    /** Records step data by requesting a subscription to background step data. */
+    private fun subscribe() {
+        val account = GoogleSignIn.getAccountForExtension(this.requireActivity(), fitnessOptions)
+        Fitness.getRecordingClient(this.requireActivity(),account)
+            .subscribe(DataType.TYPE_STEP_COUNT_DELTA)
+            .addOnSuccessListener {
+                Log.i(TAG, "Successfully subscribed!")
+                readData()
+            }
+            .addOnFailureListener {e ->
+                Log.w(TAG, "There was a problem subscribing.", e)
+            }
+    }
+    /**
+     * Reads the current daily step total, computed from midnight of the current day on the device's
+     * current timezone.
+     */
+    private fun readData() {
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
+        val endTime = calendar.timeInMillis
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        val startTime = calendar.timeInMillis
+        val account = GoogleSignIn.getAccountForExtension(this.requireActivity(), fitnessOptions)
+        account?.let {
+            Fitness.getHistoryClient(this.requireActivity(), it)
+                .readData(
+                    DataReadRequest.Builder()
+                        .read(DataType.TYPE_STEP_COUNT_DELTA)
+                        .read(DataType.TYPE_DISTANCE_DELTA)
+                        .read(DataType.TYPE_CALORIES_EXPENDED)
+                        .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+                        .build()
+                )
+                .addOnSuccessListener { response ->
+                    var userInputSteps = 0
+                    var totalDistance = 0f
+                    var totalCalories = 0f
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        onDataChangeListener = context as? OnDataChangeListener
-            ?: throw ClassCastException("$context must implement OnDataChangeListener")
+                    for (dataSet in response.dataSets) {
+                        for (dp in dataSet.dataPoints) {
+                            for (field in dp.dataType.fields) {
+                                when (dp.dataType.name) {
+                                    DataType.TYPE_STEP_COUNT_DELTA.name -> {
+                                        if ("user_input" != dp.originalDataSource.streamName) {
+                                            val steps = dp.getValue(field).asInt()
+                                            userInputSteps += steps
+                                        }
+                                    }
+                                    DataType.TYPE_DISTANCE_DELTA.name -> {
+                                        val distance = dp.getValue(field).asFloat()
+                                        totalDistance += distance
+                                    }
+                                    DataType.TYPE_CALORIES_EXPENDED.name -> {
+                                        val calories = dp.getValue(field).asFloat()
+                                        totalCalories += calories
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    binding.StepCount.text = "$userInputSteps 걸음"
+                    binding.DistancenCalories.text = "${String.format("%.2f", totalDistance)} km / ${String.format("%.2f", totalCalories)} kcal"
+                }
+                .addOnFailureListener { e ->
+                    Log.w(TAG, "There was a problem getting the step count.", e)
+                }
+        }
+    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (resultCode) {
+            Activity.RESULT_OK -> when (requestCode) {
+                MY_PERMISSIONS_REQUEST_ACTIVITY_RECOGNITION_AND_LOCATION -> subscribe()
+                else -> {
+                    Toast.makeText(this.requireContext(), "google fit wasn't return result", Toast.LENGTH_SHORT).show()
+                }
+            }
+            else -> {
+                Toast.makeText(this.requireContext(), "permission failed", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+    // 2. 권한을 요청하는 함수
+    private fun requestActivityRecognitionAndLocationPermission() {
+        // 권한을 요청합니다.
+        ActivityCompat.requestPermissions(
+            this.requireActivity(),
+            arrayOf(
+                Manifest.permission.ACTIVITY_RECOGNITION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ),
+            MY_PERMISSIONS_REQUEST_ACTIVITY_RECOGNITION_AND_LOCATION
+        )
     }
 
-    // 호출하는 부분
-    private fun someMethodWhereDataChanges(newData: String) {
-        onDataChangeListener?.onDataChanged(newData)
+    // 3. 권한 요청 결과를 처리하는 함수
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        Log.d("requestCode" ,"$requestCode")
+        when (requestCode) {
+            MY_PERMISSIONS_REQUEST_ACTIVITY_RECOGNITION_AND_LOCATION -> {
+                // 권한 요청 결과를 확인합니다.
+                if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+                    // 권한이 부여되었으므로 로직을 진행합니다.
+                    // 예를 들어, 액티비티를 시작하거나 어떤 작업을 수행합니다.
+                    Toast.makeText(this.requireContext(), "권한 재요청 성공.", Toast.LENGTH_SHORT).show()
+                    startYourActivity()
+                } else {
+                    //권한이 거부되었을 경우 처리합니다.
+                    Toast.makeText(this.requireContext(), "권한이 거부되었습니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            // 필요한 경우 다른 권한 요청도 처리합니다.
+        }
     }
 
-    // 실제로 TextView 값을 변경하는 메서드
-    fun updateTextView(newText: String) {
-        // 여기에 TextView를 찾아서 값을 변경하는 코드 작성
-        Toast.makeText(this.requireContext(), "성공적으로 값 변경", Toast.LENGTH_SHORT).show()
-        binding.StepCount.text = newText
+    // 4. 권한이 부여된 후에 실행하려는 로직을 담은 함수
+    private fun startYourActivity() {
+        // 여기에 권한이 부여된 후에 수행하고자 하는 작업을 추가합니다.
+        val account = GoogleSignIn.getAccountForExtension(this.requireContext(), fitnessOptions)
+        Toast.makeText(this.requireContext(), "google fit과 연동중입니다.", Toast.LENGTH_SHORT).show()
+        Log.i("account","계정은 ${GoogleSignIn.hasPermissions(account, fitnessOptions)}")
+        if (!GoogleSignIn.hasPermissions(account, fitnessOptions)) {
+            Toast.makeText(this.requireContext(), "구글인증이 실패.", Toast.LENGTH_SHORT).show()
+            GoogleSignIn.requestPermissions(
+                this,
+                MY_PERMISSIONS_REQUEST_ACTIVITY_RECOGNITION_AND_LOCATION,
+                account,
+                fitnessOptions)
+        } else {
+            Toast.makeText(this.requireContext(), "google fit과 연동 성공하였습니다", Toast.LENGTH_SHORT).show()
+            subscribe()
+        }
     }
 }
