@@ -82,57 +82,6 @@
             android:button="@null"/>
 
     </RadioGroup>
-    <!--<GridLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:columnCount="5"
-        android:layout_marginTop="30dp"
-        >
-        &lt;!&ndash;라디오버튼으로 변경&ndash;&gt;
-        <ImageView
-            android:layout_width="15dp"
-            android:layout_height="45dp"
-            android:layout_columnWeight="1"
-            android:layout_marginLeft="40dp"
-            android:src="@drawable/snow"
-            android:background="@drawable/image_border_line"
-            />
-        <ImageView
-            android:layout_width="15dp"
-            android:layout_height="45dp"
-            android:layout_columnWeight="1"
-            android:src="@drawable/snow1"
-            android:background="@drawable/image_border_line"
-            android:layout_marginLeft="20dp"
-            />
-        <ImageView
-            android:layout_width="15dp"
-            android:layout_height="45dp"
-            android:layout_columnWeight="1"
-            android:src="@drawable/snow2"
-            android:background="@drawable/image_border_line"
-            android:layout_marginLeft="20dp"
-            />
-        <ImageView
-            android:layout_width="15dp"
-            android:layout_height="45dp"
-            android:layout_columnWeight="1"
-            android:src="@drawable/snow3"
-            android:background="@drawable/image_border_line"
-            android:layout_marginLeft="20dp"
-            />
-        <ImageView
-            android:layout_width="15dp"
-            android:layout_height="45dp"
-            android:layout_columnWeight="1"
-            android:layout_marginRight="40dp"
-            android:src="@drawable/snow4"
-            android:background="@drawable/image_border_line"
-            android:layout_marginLeft="20dp"
-            />
-
-
-    </GridLayout>-->
 
     <LinearLayout
         android:layout_width="match_parent"

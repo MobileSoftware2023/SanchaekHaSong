@@ -65,7 +65,8 @@ class MyPageActivity : AppCompatActivity() {
         }
 
         binding.deleteAccountButton.setOnClickListener {
-            deleteAccount(username)
+            val intent : Intent = Intent(this, DeleteAccountActivity::class.java)
+            startActivity(intent)
         }
 
 
@@ -79,28 +80,6 @@ class MyPageActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    fun deleteAccount(username: String){
-       auth.currentUser!!.delete().addOnCompleteListener{ task ->
-            if(task.isSuccessful){
-                Toast.makeText(this, "탈퇴 완료", Toast.LENGTH_SHORT).show()
-                auth.signOut()
-                val database = FirebaseDatabase.getInstance()
-                val myData = database.getReference("$username")
-                myData.removeValue().addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val intent : Intent = Intent(this, LoginActivity::class.java)
-                        startActivity(intent)
-                        Log.d("Firebase", "경로 삭제 성공")
-                    } else {
-                        Log.e("Firebase", "경로 삭제 실패", task.exception)
-                    }
-                }
-            }
-            else {
-                Toast.makeText(this, task.exception.toString(), Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
 
     override fun onBackPressed() {
         super.onBackPressed()

@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -23,28 +24,30 @@ class CreateAccountActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityCreateAccountBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        binding.profileImage.setTag("snow1")
         
         binding.radioGroup.setOnCheckedChangeListener{ group, checkedID ->
             when (checkedID) {
                 binding.snow.id -> {
                     binding.profileImage.setImageResource(R.drawable.snow1)
-                    binding.profileImage.setTag("snow")
+                    binding.profileImage.setTag("snow1")
                 }
                 binding.snow1.id -> {
                     binding.profileImage.setImageResource(R.drawable.snow2)
-                    binding.profileImage.setTag("snow1")
+                    binding.profileImage.setTag("snow2")
                 }
                 binding.snow2.id -> {
                     binding.profileImage.setImageResource(R.drawable.snow3)
-                    binding.profileImage.setTag("snow2")
+                    binding.profileImage.setTag("snow3")
                 }
                 binding.snow3.id -> {
                     binding.profileImage.setImageResource(R.drawable.snow4)
-                    binding.profileImage.setTag("snow3")
+                    binding.profileImage.setTag("snow4")
                 }
                 else -> {
                     binding.profileImage.setImageResource(R.drawable.snow5)
-                    binding.profileImage.setTag("snow4")
+                    binding.profileImage.setTag("snow5")
                 }
             }
         }

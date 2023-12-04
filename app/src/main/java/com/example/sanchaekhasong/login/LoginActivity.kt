@@ -43,8 +43,9 @@ class LoginActivity : AppCompatActivity() {
             val password = it.data?.getStringExtra("password")
             val profileImage = it.data?.getStringExtra("profileImage")
             val college = it.data?.getStringExtra("college")
-            if(email != null  && password != null && profileImage != null && college != null)
+            if(email != null  && password != null && profileImage != null && college != null) {
                 createAccount(email, password, profileImage, college)
+            }
 
         }
 
