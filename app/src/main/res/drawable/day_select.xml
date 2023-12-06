@@ -3,6 +3,6 @@
     android:shape="oval">
     <solid android:color="#FFA500" /> <!-- 노란색 동그라미 색상 -->
     <size
-        android:width="20dp"
-        android:height="20dp" />
+        android:width="15dp"
+        android:height="15dp" />
 </shape>

@@ -2,7 +2,8 @@ package com.example.sanchaekhasong.main
 
 import android.Manifest
 import android.app.Activity
-import android.content.Context
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -16,18 +17,22 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.sanchaekhasong.OnDataChangeListener
+import com.example.sanchaekhasong.R
 import com.example.sanchaekhasong.databinding.FragmentHomeBinding
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.fitness.Fitness
 import com.google.android.gms.fitness.FitnessOptions
 import com.google.android.gms.fitness.data.DataType
 import com.google.android.gms.fitness.request.DataReadRequest
+import com.google.android.gms.fitness.result.DataReadResponse
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
-import java.util.concurrent.TimeUnit
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 
 class HomeFragment : Fragment() {
@@ -42,6 +47,10 @@ class HomeFragment : Fragment() {
         .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
         .addDataType(DataType.TYPE_STEP_COUNT_CUMULATIVE, FitnessOptions.ACCESS_READ)
         .addDataType(DataType.TYPE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
+        .addDataType(DataType.TYPE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
+        .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+        .addDataType(DataType.AGGREGATE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
+        .addDataType(DataType.AGGREGATE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
         .build()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -105,13 +114,15 @@ class HomeFragment : Fragment() {
         val sundayTextView = binding.Sunday
 
         // 각 요일에 대한 클릭 이벤트 설정
-        mondayTextView.setOnClickListener { /*onDayClicked(mondayStepCount, mondayDistance, mondayCalories)*/ }
-        tuesdayTextView.setOnClickListener { /* Tuesday clicked */ }
-        wednesdayTextView.setOnClickListener { /* Wednesday clicked */ }
-        thursdayTextView.setOnClickListener { /* Thursday clicked */ }
-        fridayTextView.setOnClickListener { /* Friday clicked */ }
-        saturdayTextView.setOnClickListener { /* Saturday clicked */ }
-        sundayTextView.setOnClickListener { /* Sunday clicked */ }
+        mondayTextView.setOnClickListener { onDayClicked(mondayTextView) }
+        tuesdayTextView.setOnClickListener { onDayClicked(tuesdayTextView) }
+        wednesdayTextView.setOnClickListener { onDayClicked(wednesdayTextView) }
+        thursdayTextView.setOnClickListener { onDayClicked(thursdayTextView) }
+        fridayTextView.setOnClickListener { onDayClicked(fridayTextView) }
+        saturdayTextView.setOnClickListener { onDayClicked(saturdayTextView) }
+        sundayTextView.setOnClickListener { onDayClicked(sundayTextView) }
+
+
         // ... (다른 요일들의 클릭 이벤트 설정 추가)
         // 1. 권한이 부여되지 않았을 경우
         if (ContextCompat.checkSelfPermission(
@@ -132,9 +143,52 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun onDayClicked(stepCount: Int, distance: Double, calories: Double) {
-        // 클릭한 요일에 대한 걸음 수, 거리, 칼로리를 StepCountHistory TextView에 설정
+    // 클릭 이벤트 핸들러에서 필요한 데이터를 전달하는 함수
+    private fun onDayClicked(textView: TextView) {
+        val desiredDayOfWeek = when (textView.id) {
+            R.id.Monday -> Calendar.MONDAY
+            R.id.Tuesday -> Calendar.TUESDAY
+            R.id.Wednesday -> Calendar.WEDNESDAY
+            R.id.Thursday -> Calendar.THURSDAY
+            R.id.Friday -> Calendar.FRIDAY
+            R.id.Saturday -> Calendar.SATURDAY
+            R.id.Sunday -> Calendar.SUNDAY
+            else -> return // 예상치 못한 경우, 처리 필요
+        }
 
+        val currentDayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+        val daysToSubtract = (currentDayOfWeek - desiredDayOfWeek + 7) % 7
+
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DAY_OF_YEAR, -daysToSubtract)
+
+        // 선택한 요일의 자정
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        val startTime = calendar.timeInMillis
+
+        // 해당 날의 23시 59분 59초
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        val endTime = calendar.timeInMillis
+
+        val dataTypesToRead = listOf(
+            DataType.TYPE_STEP_COUNT_DELTA,
+            DataType.TYPE_DISTANCE_DELTA,
+            DataType.TYPE_CALORIES_EXPENDED
+        )
+
+        // 비동기적으로 데이터 읽기
+        lifecycleScope.launch {
+            val (StepCount, Distance, Calories) = readHistoryData(startTime, endTime, dataTypesToRead)
+
+            setDayBackgrounds(textView.id)
+            // 클릭한 요일에 대한 걸음 수, 거리, 칼로리를 StepCountHistory TextView에 설정
+            binding.StepCountHistory.text = "$StepCount 걸음"
+            binding.DistancenCaloriesHistory.text = "${String.format("%.2f", Distance / 1000)} km   |   ${String.format("%.2f", Calories)} kcal"
+        }
     }
     private fun calculateEndDate(): Date {
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
@@ -172,6 +226,24 @@ class HomeFragment : Fragment() {
         val account = GoogleSignIn.getAccountForExtension(this.requireActivity(), fitnessOptions)
         Fitness.getRecordingClient(this.requireActivity(),account)
             .subscribe(DataType.TYPE_STEP_COUNT_DELTA)
+            .addOnSuccessListener {
+                Log.i(TAG, "Successfully subscribed!")
+                readData()
+            }
+            .addOnFailureListener {e ->
+                Log.w(TAG, "There was a problem subscribing.", e)
+            }
+        Fitness.getRecordingClient(this.requireActivity(),account)
+            .subscribe(DataType.TYPE_DISTANCE_DELTA)
+            .addOnSuccessListener {
+                Log.i(TAG, "Successfully subscribed!")
+                readData()
+            }
+            .addOnFailureListener {e ->
+                Log.w(TAG, "There was a problem subscribing.", e)
+            }
+        Fitness.getRecordingClient(this.requireActivity(),account)
+            .subscribe(DataType.TYPE_CALORIES_EXPENDED)
             .addOnSuccessListener {
                 Log.i(TAG, "Successfully subscribed!")
                 readData()
@@ -231,7 +303,7 @@ class HomeFragment : Fragment() {
                     }
 
                     binding.StepCount.text = "$userInputSteps 걸음"
-                    binding.DistancenCalories.text = "${String.format("%.2f", totalDistance)} km / ${String.format("%.2f", totalCalories)} kcal"
+                    binding.DistancenCalories.text = "${String.format("%.2f", totalDistance / 1000)} km / ${String.format("%.2f", totalCalories)} kcal"
                 }
                 .addOnFailureListener { e ->
                     Log.w(TAG, "There was a problem getting the step count.", e)
@@ -308,4 +380,86 @@ class HomeFragment : Fragment() {
             subscribe()
         }
     }
+    private suspend fun readHistoryData(startTime: Long, endTime : Long, dataTypes: List<DataType>): Triple<Int, Float, Float> {
+        return suspendCoroutine { continuation ->
+            val account = GoogleSignIn.getAccountForExtension(this.requireActivity(), fitnessOptions)
+            account?.let {
+                val requestBuilder = DataReadRequest.Builder()
+                    .aggregate(DataType.AGGREGATE_DISTANCE_DELTA)
+                    .aggregate(DataType.AGGREGATE_CALORIES_EXPENDED)
+                    .aggregate(DataType.AGGREGATE_STEP_COUNT_DELTA)
+                    .bucketByActivityType(1, TimeUnit.MILLISECONDS)
+                    .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+
+                Fitness.getHistoryClient(this.requireActivity(), it)
+                    .readData(requestBuilder.build())
+                    .addOnSuccessListener { response ->
+                        val result = processResponseData(response, dataTypes)
+                        continuation.resume(result)
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w(TAG, "There was a problem getting the data.", e)
+                        continuation.resume(Triple(0, 0f, 0f))
+                    }
+            } ?: continuation.resume(Triple(0, 0f, 0f))
+        }
+    }
+
+    private fun processResponseData(response: DataReadResponse, dataTypes: List<DataType>): Triple<Int, Float, Float> {
+        // 여기에 데이터를 가공하는 로직을 추가
+        var stepCount = 0
+        var distance = 0f
+        var calories = 0f
+
+        // DataReadResponse에서 버킷 가져오기
+        val buckets = response.buckets
+
+        for (bucket in buckets) {
+            // 각 버킷의 데이터 세트 얻기
+            for (dataType in dataTypes) {
+                val dataSet = bucket.getDataSet(dataType)
+
+                // 데이터 세트에서 데이터 포인트 가져오기
+                if (dataSet != null) {
+                    for (dp in dataSet.dataPoints) {
+                        for (field in dp.dataType.fields) {
+                            when (dp.dataType.name) {
+                                DataType.AGGREGATE_STEP_COUNT_DELTA.name -> {
+                                    if ("user_input" != dp.originalDataSource.streamName) {
+                                        val steps = dp.getValue(field).asInt()
+                                        stepCount += steps
+                                    }
+                                }
+
+                                DataType.AGGREGATE_DISTANCE_DELTA.name -> {
+                                    val distanceValue = dp.getValue(field).asFloat()
+                                    distance += distanceValue
+                                }
+
+                                DataType.AGGREGATE_CALORIES_EXPENDED.name -> {
+                                    val caloriesValue = dp.getValue(field).asFloat()
+                                    calories += caloriesValue
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return Triple(stepCount, distance, calories)
+    }
+    private fun setDayBackgrounds(id: Int) {
+        // 모든 요일의 아이디를 배열로 정의
+        val allDayIds = arrayOf(
+            binding.Monday.id, binding.Tuesday.id, binding.Wednesday.id,
+            binding.Thursday.id, binding.Friday.id, binding.Saturday.id, binding.Sunday.id
+        )
+
+        // 선택된 요일을 제외하고 나머지 요일의 배경을 초기 상태로 되돌림
+        for (dayId in allDayIds) {
+            val dayTextView = binding.root.findViewById<TextView>(dayId)
+            dayTextView.setBackgroundResource(if (dayId == id) R.drawable.day_select else android.R.color.transparent)
+        }
+    }
+
 }
