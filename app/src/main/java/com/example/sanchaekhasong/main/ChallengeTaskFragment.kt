@@ -25,6 +25,12 @@ class ChallengeTaskFragment : DialogFragment() {
         //db연결시 교체
         //binding.recyclerChallengeTasks.adapter = ChallengeTaskAdapter(Datas)
 
+        // btn_challenge_close 버튼 클릭 이벤트 설정
+        binding.btnCloseChallenge.setOnClickListener {
+            // 다이얼로그 프래그먼트를 닫음
+            dismiss()
+        }
+
         return binding.root
     }
 
