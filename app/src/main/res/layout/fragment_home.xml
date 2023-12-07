@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_marginVertical="10dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_home"
+    tools:context=".main.HomeFragment">
+
+    <TextView
+        android:id="@+id/tvDate"
+        android:color = "@color/black"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=" 오늘, 11월 25일 \n 랭킹 종료까지 1d 5h 19m"
+        android:textSize="20sp"
+        android:lineHeight="30sp"
+        android:textStyle="normal"
+        android:layout_gravity="center"
+        android:layout_margin="5dp"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:background="@drawable/rectangle_style"
+        android:orientation="vertical"
+        android:layout_margin="7dp">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="110dp"
+            android:orientation="horizontal"
+            android:weightSum="5">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="30dp"
+                android:layout_weight="4"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/StepCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="12,345 걸음"
+                    android:textColor="@color/black"
+                    android:textSize="25sp">
+
+                </TextView>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="남은 하루도 힘차게 가볼까요?"
+                    android:textColor="@color/grey"
+                    android:textSize="13sp">
+
+                </TextView>
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="80dp"
+                android:src="@drawable/cheersong"
+                android:layout_weight="1"
+                android:layout_marginTop="20dp"
+                android:layout_marginRight="15dp">
+            </ImageView>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/DistancenCalories"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="10.39 km         |         526 kcal"
+            android:textAlignment="center"
+            android:textSize="15sp"
+            android:textColor="@color/dark_grey">
+
+        </TextView>
+
+
+    </LinearLayout>
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:columnCount="2"
+        android:layout_marginVertical="5dp"
+        android:layout_gravity="center"
+        >
+
+        <LinearLayout
+            android:id="@+id/Daily_task_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:background="@drawable/rectangle_style"
+            android:padding="10dp"
+            android:layout_columnWeight="1"
+            android:layout_margin="7dp"
+            >
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/calender"
+                android:layout_marginRight="10dp">
+
+            </ImageView>
+
+            <TextView
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="일일 퀘스트"
+                android:textColor="@color/dark_grey"
+                android:textSize="18sp" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/Challenge_task_layout"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:gravity="center"
+            android:background="@drawable/rectangle_style"
+            android:padding="10dp"
+            android:layout_columnWeight="1"
+            android:layout_margin="7dp"
+            >
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginRight="10dp"
+                android:src="@drawable/trophy">
+
+            </ImageView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="도전 과제"
+                android:textSize="18sp"
+                android:textColor="@color/dark_grey"
+                android:gravity="center" />
+
+        </LinearLayout>
+    </GridLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="@drawable/gradient_rectangle"
+        android:layout_margin="7dp">
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_margin="7dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:weightSum="7">
+        <TextView
+            android:id="@+id/Monday"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="월"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:layout_marginHorizontal="7dp"
+            />
+        <TextView
+            android:id="@+id/Tuesday"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="화"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:layout_marginHorizontal="7dp"
+            />
+        <TextView
+            android:id="@+id/Wednesday"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="수"
+            android:background="@drawable/day_select"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:layout_marginHorizontal="7dp"
+            />
+        <TextView
+            android:id="@+id/Thursday"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="목"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:textColor="@color/black"
+            android:layout_marginHorizontal="7dp"
+            />
+        <TextView
+            android:id="@+id/Friday"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="금"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:layout_marginHorizontal="7dp"
+            />
+        <TextView
+            android:id="@+id/Saturday"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="토"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:layout_marginHorizontal="7dp"
+            />
+        <TextView
+            android:id="@+id/Sunday"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="일"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_marginHorizontal="7dp"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:gravity="center"
+        android:background="@drawable/rectangle_style"
+        android:padding="10dp"
+        android:layout_columnWeight="1"
+        android:layout_margin="7dp"
+        >
+
+        <TextView
+            android:id="@+id/StepCountHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="4,638 걸음"
+            android:textSize="25sp"
+            android:textColor="@color/dark_grey"
+            android:gravity="center"
+            android:layout_marginHorizontal="10dp"/>
+        <TextView
+            android:id="@+id/DistancenCaloriesHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="3.35 km   |   178 kcal"
+            android:textSize="15sp"
+            android:textColor="@color/grey"
+            android:gravity="center"
+            android:layout_marginLeft="30dp"/>
+
+    </LinearLayout>
+</androidx.appcompat.widget.LinearLayoutCompat>
+

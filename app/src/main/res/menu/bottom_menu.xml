@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/home"
+        android:enabled="true"
+        android:icon="@drawable/icon_home"
+        android:title="홈"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/rank"
+        android:enabled="true"
+        android:icon="@drawable/icon_ranking"
+        android:title="랭킹"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/map"
+        android:enabled="true"
+        android:icon="@drawable/icon_map"
+        android:title="지도"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/store"
+        android:enabled="true"
+        android:icon="@drawable/icon_store"
+        android:title="상점"
+        app:showAsAction="always"/>
+
+</menu>

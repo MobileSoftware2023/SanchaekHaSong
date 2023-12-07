@@ -1,0 +1,8 @@
+<!-- res/drawable/circle_background.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="#FFA500" /> <!-- 노란색 동그라미 색상 -->
+    <size
+        android:width="15dp"
+        android:height="15dp" />
+</shape>
