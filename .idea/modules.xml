@@ -3,6 +3,10 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/SanchaekHaSong.iml" filepath="$PROJECT_DIR$/.idea/SanchaekHaSong.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/SanchaekHaSong.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/SanchaekHaSong.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/SanchaekHaSong.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/SanchaekHaSong.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/SanchaekHaSong.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/SanchaekHaSong.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/SanchaekHaSong.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/SanchaekHaSong.app.unitTest.iml" />
     </modules>
   </component>
 </project>
