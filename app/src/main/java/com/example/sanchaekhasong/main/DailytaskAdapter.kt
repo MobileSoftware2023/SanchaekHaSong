@@ -1,18 +1,34 @@
 package com.example.sanchaekhasong.main
 
+import android.content.Context
+import android.content.res.ColorStateList
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.graphics.Color
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sanchaekhasong.R
 import com.example.sanchaekhasong.databinding.ItemDailytaskBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class DailytaskViewHolder(val binding: ItemDailytaskBinding) : RecyclerView.ViewHolder(binding.root)
 
 class DailytaskAdapter(
-    private val missionDatas: MutableList<String>,
-    private val pointDatas: MutableList<Int>,
-    private val completed: MutableList<Boolean>
+    private var missionDatas: MutableList<String>,
+    private var pointDatas: MutableList<Int>,
+    private var completedDatas: MutableList<Boolean>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    lateinit var context : Context
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        context = recyclerView.context
+    }
     //매개변수 자리에 넣기 (val DailyList: Array<DailyTask>)
     override fun getItemCount(): Int = missionDatas.size
 
@@ -22,13 +38,15 @@ class DailytaskAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val binding = (holder as DailytaskViewHolder).binding
-        //미션명 설정
-        binding.dailyTask.text = missionDatas[position].toString()
-        //미션에 대한 코인 설정
+
+        binding.dailyTask.text = missionDatas[position]
+        val index = position
+
         val point=pointDatas[position]
         binding.dailyCoinCount.text = "$point C"
-        //미션 달성 유무
-        val isCompleted= completed[position]
+
+        val isCompleted = completedDatas[position]
+
         // 미션 달성 여부에 따라 TextView 스타일 변경
         if (isCompleted) {
             // 미션 달성 시 노란색으로 설정 (원하는 색상으로 변경)
@@ -36,16 +54,48 @@ class DailytaskAdapter(
 
             // 클릭 리스너 설정
             holder.binding.missionCheck.setOnClickListener {
-                // TODO: 미션 달성 시 동작할 코드 작성
-                // 코인 획득 등의 처리를 수행 : 데이터베이스에 코인 추가 하고 동기화 시킨다.
+                val database = FirebaseDatabase.getInstance()
+                val username = FirebaseAuth.getInstance().currentUser?.email.toString().substringBeforeLast('@')
+                val myData = database.getReference("$username")
+                myData.addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        var currentPoint = dataSnapshot.child("point").value as Long
+                        currentPoint += pointDatas[index]
+                        myData.child("point").setValue(currentPoint)
 
-                // 다시 기본 색상으로 초기화
-                holder.binding.missionCheck.setBackgroundResource(R.drawable.dialog_border)
-
+                        myData.child("dailyQuest").child("isCompleted").child("$index").setValue(false)
+                        myData.removeEventListener(this)
+                        myData.orderByValue().addListenerForSingleValueEvent(object :
+                            ValueEventListener {
+                            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                                completedDatas =dataSnapshot.child("dailyQuest").child("isCompleted").value as MutableList<Boolean>
+                                notifyDataSetChanged()
+                            }
+                            override fun onCancelled(databaseError: DatabaseError) {
+                                Log.e("TAG_DB", "onCancelled", databaseError.toException())
+                            }
+                        })
+                    }
+                    override fun onCancelled(error: DatabaseError) {
+                        val code = error.code
+                        val message = error.message
+                        Log.e("TAG_DB", "onCancelled by $code : $message")
+                    }
+                })
             }
+
         } else {
+            holder.binding.missionCheck.setBackgroundResource(R.drawable.dialog_border)
             // 클릭 리스너를 null로 설정하여 클릭 무시
             holder.binding.missionCheck.setOnClickListener(null)
         }
+
+    }
+
+    fun updateData(newMissionList: MutableList<String>, newPointList: MutableList<Int>, newCompletedList: MutableList<Boolean>) {
+        missionDatas = newMissionList
+        pointDatas = newPointList
+        completedDatas = newCompletedList
+        notifyDataSetChanged()
     }
 }

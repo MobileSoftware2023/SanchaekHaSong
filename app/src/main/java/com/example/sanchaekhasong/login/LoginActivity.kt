@@ -132,7 +132,8 @@ class LoginActivity : AppCompatActivity() {
         myData.child("challenge").child("point").setValue(challengePoint)
         val progressList = listOf<Int>(0, 0, 0, 0, 0, 0)
         myData.child("challenge").child("progress").setValue(progressList)
-        myData.child("challenge").child("isCompleted").setValue(true)
+        val completedList = listOf<Boolean>(false, false, false, false, false)
+        myData.child("challenge").child("isCompleted").setValue(completedList)
         val dailyQuestList = listOf<String>("6,000 걸음 이상 걸어요.", "8,000 걸음 이상 걸어요.",
             "10,000 걸음 이상 걸어요.", "ㅇㅇ 루트를 1회 걸어요.",
             "ㅁㅁ 루트를 1회 걸어요.", "ㄹㄹ 루트를 1회 걸어요."
@@ -140,7 +141,7 @@ class LoginActivity : AppCompatActivity() {
         myData.child("dailyQuest").child("mission").setValue(dailyQuestList)
         val dailyPoint = listOf<Int>(100, 200, 300, 100, 100, 100)
         myData.child("dailyQuest").child("point").setValue(dailyPoint)
-        myData.child("dailyQuest").child("isCompleted").setValue(true)
+        myData.child("dailyQuest").child("isCompleted").setValue(completedList)
 
 
         //단과대 학생수 등록
