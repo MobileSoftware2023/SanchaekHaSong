@@ -142,6 +142,8 @@ class LoginActivity : AppCompatActivity() {
         val dailyPoint = listOf<Int>(100, 200, 300, 100, 100, 100)
         myData.child("dailyQuest").child("point").setValue(dailyPoint)
         myData.child("dailyQuest").child("isCompleted").setValue(completedList)
+        myData.child("dailyQuest").child("isCompletedClicked").setValue(completedList)
+
 
 
         //단과대 학생수 등록
