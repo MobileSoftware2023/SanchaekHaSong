@@ -17,6 +17,7 @@ import com.example.sanchaekhasong.databinding.FragmentHomeBinding
 import com.example.sanchaekhasong.main.HomeFragment
 import com.example.sanchaekhasong.mypage.MyPageActivity
 import com.example.sanchaekhasong.ranking.RankingFragment
+import com.example.sanchaekhasong.route.RouteFragment
 import com.example.sanchaekhasong.store.StoreFragment
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.fitness.Fitness
@@ -69,7 +70,7 @@ class MainActivity : AppCompatActivity() {
             when(item.itemId) {
                 R.id.home -> setFragment(HomeFragment())
                 R.id.rank -> setFragment(RankingFragment())
-                //R.id.map-> setFragment(MapFragment())
+                R.id.map-> setFragment(RouteFragment())
                 R.id.store-> setFragment(StoreFragment())
             }
             true
