@@ -23,7 +23,7 @@ class DailyTaskFragment : DialogFragment() {
     var missionDatas: MutableList<String> = mutableListOf()
     var pointDatas: MutableList<Int> = mutableListOf()
     var completedList : MutableList<Boolean> = mutableListOf()
-
+    var clickedList : MutableList<Boolean> = mutableListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,7 +32,7 @@ class DailyTaskFragment : DialogFragment() {
         val binding = FragmentDailyTaskBinding.inflate(layoutInflater,container,false)
 
         binding.recyclerDailyTasks.layoutManager = LinearLayoutManager(activity)
-        dailytaskAdapter= DailytaskAdapter(missionDatas,pointDatas,completedList)
+        dailytaskAdapter= DailytaskAdapter(missionDatas,pointDatas,completedList, clickedList)
         binding.recyclerDailyTasks.adapter = dailytaskAdapter
 
         val database = FirebaseDatabase.getInstance()
@@ -44,7 +44,8 @@ class DailyTaskFragment : DialogFragment() {
                 missionDatas = dataSnapshot.child("mission").value as? MutableList<String> ?: mutableListOf()
                 pointDatas = dataSnapshot.child("point").value as? MutableList<Int> ?: mutableListOf()
                 completedList = dataSnapshot.child("isCompleted").value as? MutableList<Boolean> ?: mutableListOf()
-                dailytaskAdapter.updateData(missionDatas, pointDatas, completedList)
+                clickedList = dataSnapshot.child("isCompletedClicked").value as? MutableList<Boolean> ?: mutableListOf()
+                dailytaskAdapter.updateData(missionDatas, pointDatas, completedList, clickedList)
             }
 
             override fun onCancelled(error: DatabaseError) {

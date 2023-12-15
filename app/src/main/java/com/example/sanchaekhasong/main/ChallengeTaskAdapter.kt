@@ -1,10 +1,12 @@
 package com.example.sanchaekhasong.main
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sanchaekhasong.R
 import com.example.sanchaekhasong.databinding.ItemChallengetaskBinding
@@ -22,7 +24,12 @@ class ChallengeTaskAdapter(
     private var progressDatas: MutableList<Int>,
     private var completedDatas:MutableList<Boolean>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    //매개변수 자리에 넣기 (val ChallengeList: Array<ChallengeTask>)
+
+    lateinit var context : Context
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        context = recyclerView.context
+    }
     override fun getItemCount(): Int = missionDatas.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = ChallengetaskViewHolder(
@@ -45,6 +52,13 @@ class ChallengeTaskAdapter(
 
         val isCompleted = completedDatas[position]
 
+        if(isCompleted){
+            holder.binding.missionCheck.setBackgroundResource(R.drawable.task_button_general)
+            holder.binding.missionCheck.foreground = ContextCompat.getDrawable(context, R.drawable.task_button_shade)
+        }
+        else{
+            holder.binding.missionCheck.setBackgroundResource(R.drawable.task_button_general)
+        }
         // 미션 달성 여부에 따라 TextView 스타일 변경
         if (progress == 30 && !isCompleted) {
             // 미션 달성 시 노란색으로 설정 (원하는 색상으로 변경)

@@ -21,7 +21,8 @@ class DailytaskViewHolder(val binding: ItemDailytaskBinding) : RecyclerView.View
 class DailytaskAdapter(
     private var missionDatas: MutableList<String>,
     private var pointDatas: MutableList<Int>,
-    private var completedDatas: MutableList<Boolean>
+    private var completedDatas: MutableList<Boolean>,
+    private var clickedDatas: MutableList<Boolean>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     lateinit var context : Context
@@ -47,6 +48,16 @@ class DailytaskAdapter(
 
         val isCompleted = completedDatas[position]
 
+        val isClicked = clickedDatas[position]
+
+        if(isClicked){
+            holder.binding.missionCheck.setBackgroundResource(R.drawable.task_button_general)
+            holder.binding.missionCheck.foreground = ContextCompat.getDrawable(context, R.drawable.task_button_shade)
+        }
+        else{
+            holder.binding.missionCheck.setBackgroundResource(R.drawable.task_button_general)
+        }
+
         // 미션 달성 여부에 따라 TextView 스타일 변경
         if (isCompleted) {
             // 미션 달성 시 노란색으로 설정 (원하는 색상으로 변경)
@@ -64,6 +75,8 @@ class DailytaskAdapter(
                         myData.child("point").setValue(currentPoint)
 
                         myData.child("dailyQuest").child("isCompleted").child("$index").setValue(false)
+                        myData.child("dailyQuest").child("isCompletedClicked").child("$index").setValue(true)
+
                         myData.removeEventListener(this)
                         myData.orderByValue().addListenerForSingleValueEvent(object :
                             ValueEventListener {
@@ -75,6 +88,8 @@ class DailytaskAdapter(
                                 Log.e("TAG_DB", "onCancelled", databaseError.toException())
                             }
                         })
+
+
                     }
                     override fun onCancelled(error: DatabaseError) {
                         val code = error.code
@@ -85,17 +100,18 @@ class DailytaskAdapter(
             }
 
         } else {
-            holder.binding.missionCheck.setBackgroundResource(R.drawable.dialog_border)
+            //holder.binding.missionCheck.setBackgroundResource(R.drawable.dialog_border)
             // 클릭 리스너를 null로 설정하여 클릭 무시
             holder.binding.missionCheck.setOnClickListener(null)
         }
 
     }
 
-    fun updateData(newMissionList: MutableList<String>, newPointList: MutableList<Int>, newCompletedList: MutableList<Boolean>) {
+    fun updateData(newMissionList: MutableList<String>, newPointList: MutableList<Int>, newCompletedList: MutableList<Boolean>, newClickedList: MutableList<Boolean>) {
         missionDatas = newMissionList
         pointDatas = newPointList
         completedDatas = newCompletedList
+        clickedDatas = newClickedList
         notifyDataSetChanged()
     }
 }
