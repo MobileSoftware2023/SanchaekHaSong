@@ -2,8 +2,12 @@ package com.example.sanchaekhasong
 
 import android.Manifest
 import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
@@ -99,7 +103,6 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.containers, fragment)
             .commit()
     }
-
 
 
 }

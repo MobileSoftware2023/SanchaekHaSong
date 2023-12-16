@@ -60,7 +60,6 @@ class HomeFragment : Fragment() {
 
 
 
-
         binding.ChallengeTaskLayout.setOnClickListener {
             // 다이얼로그 프래그먼트를 띄우기
             val dialogFragment = ChallengeTaskFragment()
