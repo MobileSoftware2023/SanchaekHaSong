@@ -1,4 +1,4 @@
-package com.example.sanchaekhasong.route
+package com.example.gpskotlintest
 
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -37,14 +37,34 @@ class MyForegroundWork(
         Companion.isStopped = false
     }
 
+    private var destinationReached = false
+
     override fun doWork(): Result {
         Log.d("TAG", "1")
-        setForegroundAsync(showNotification(progress))
+        //setForegroundAsync(showNotification(progress))
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
         locationCallback = object : LocationCallback(){
             override fun onLocationResult(locationResult: LocationResult) {
+                if (destinationReached) return
                 for (location in locationResult.locations){
+
+                    val currentLatitude = location.latitude
+                    val currentLongitude = location.longitude
+
+                    val targetLatitude = 37.5464846
+                    val targetLongitude = 126.9671207
+
+                    if (isLocationWithinThreshold(currentLatitude, currentLongitude, targetLatitude, targetLongitude)) {
+                        val arrived = "목적지에 도착했습니다!\n위도: $currentLatitude\n경도: $currentLongitude"
+                        sendArrivalNotification()
+                        // 필요에 따라 위치 업데이트를 중단합니다.
+                        stopLocationUpdates()
+                        stopForegroundWork()
+                        destinationReached = true
+                        break
+                    }
+
                     val location =
                         "Latitude:"+location.latitude + "\n"+"Longitude: "+location.longitude
                     updateNotification(location)
@@ -55,6 +75,42 @@ class MyForegroundWork(
         return Result.success()
     }
 
+    private fun stopForegroundWork() {
+        // 백그라운드 워크를 완전히 종료합니다.
+        Log.d("TAG", "Stopping foreground work...")
+        Companion.isStopped = true
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    private fun isLocationWithinThreshold(currentLatitude: Double, currentLongitude: Double, targetLatitude: Double, targetLongitude: Double): Boolean {
+        // Define a threshold for proximity (you can adjust this value)
+        val threshold = 0.0001
+
+        // Check if the current location is within the threshold of the target location
+        val latitudeDifference = Math.abs(currentLatitude - targetLatitude)
+        val longitudeDifference = Math.abs(currentLongitude - targetLongitude)
+
+        return latitudeDifference < threshold && longitudeDifference < threshold
+    }
+
+    private fun sendArrivalNotification() {
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        val notification = NotificationCompat.Builder(context, "100")
+            .setContentTitle("도착 알림")
+            .setContentText("목표 지점에 도착했습니다.")
+            .setSmallIcon(R.mipmap.ic_appimg)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .build()
+
+        notificationManager.notify(1, notification)
+    }
+
+    private fun stopLocationUpdates() {
+        // Stop location updates when the destination is reached
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
     private fun showNotification(progress:String): ForegroundInfo {
         return ForegroundInfo(NOTIFICATIONN_ID, createNotification(progress))
     }
