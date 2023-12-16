@@ -18,7 +18,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.example.sanchaekhasong.OnDataChangeListener
 import com.example.sanchaekhasong.R
 import com.example.sanchaekhasong.databinding.FragmentHomeBinding
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -38,7 +37,6 @@ import kotlin.coroutines.suspendCoroutine
 class HomeFragment : Fragment() {
     lateinit var binding:FragmentHomeBinding
     private lateinit var countdownTimer: CountDownTimer
-    private var onDataChangeListener: OnDataChangeListener? = null
     private val TAG = "BasicRecordingApi"
     private val MY_PERMISSIONS_REQUEST_ACTIVITY_RECOGNITION_AND_LOCATION = 1
 
@@ -104,6 +102,9 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 오늘의 요일을 얻어옴
+        val currentDayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+
         // 각 요일의 TextView 참조
         val mondayTextView = binding.Monday
         val tuesdayTextView = binding.Tuesday
@@ -113,16 +114,15 @@ class HomeFragment : Fragment() {
         val saturdayTextView = binding.Saturday
         val sundayTextView = binding.Sunday
 
-        // 각 요일에 대한 클릭 이벤트 설정
-        mondayTextView.setOnClickListener { onDayClicked(mondayTextView) }
-        tuesdayTextView.setOnClickListener { onDayClicked(tuesdayTextView) }
-        wednesdayTextView.setOnClickListener { onDayClicked(wednesdayTextView) }
-        thursdayTextView.setOnClickListener { onDayClicked(thursdayTextView) }
-        fridayTextView.setOnClickListener { onDayClicked(fridayTextView) }
-        saturdayTextView.setOnClickListener { onDayClicked(saturdayTextView) }
-        sundayTextView.setOnClickListener { onDayClicked(sundayTextView) }
-
-
+        // 모든 요일에 대한 클릭 이벤트 설정
+        setDayClickListener(mondayTextView, Calendar.MONDAY, currentDayOfWeek)
+        setDayClickListener(tuesdayTextView, Calendar.TUESDAY, currentDayOfWeek)
+        setDayClickListener(wednesdayTextView, Calendar.WEDNESDAY, currentDayOfWeek)
+        setDayClickListener(thursdayTextView, Calendar.THURSDAY, currentDayOfWeek)
+        setDayClickListener(fridayTextView, Calendar.FRIDAY, currentDayOfWeek)
+        setDayClickListener(saturdayTextView, Calendar.SATURDAY, currentDayOfWeek)
+        setDayClickListener(sundayTextView, Calendar.SUNDAY, currentDayOfWeek)
+            
         // ... (다른 요일들의 클릭 이벤트 설정 추가)
         // 1. 권한이 부여되지 않았을 경우
         if (ContextCompat.checkSelfPermission(
@@ -143,6 +143,20 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun setDayClickListener(textView: TextView, dayOfWeek: Int, currentDayOfWeek: Int) {
+        // 오늘 이후의 요일에 해당하는 TextView에 대해서는 클릭 이벤트를 비활성화하고 텍스트 색상을 회색으로 변경
+        if (dayOfWeek > currentDayOfWeek) {
+            textView.setOnClickListener(null)
+            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.white_grey))
+        }else if (dayOfWeek == Calendar.SUNDAY) {
+            textView.setOnClickListener(null)
+            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.white_grey))
+        }else {
+            // 오늘 이전의 날짜에 해당하는 TextView에 대해서는 클릭 이벤트 설정
+            textView.setOnClickListener { onDayClicked(textView) }
+            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+        }
+    }
     // 클릭 이벤트 핸들러에서 필요한 데이터를 전달하는 함수
     private fun onDayClicked(textView: TextView) {
         val desiredDayOfWeek = when (textView.id) {
