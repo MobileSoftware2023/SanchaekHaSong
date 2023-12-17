@@ -1,18 +1,32 @@
 package com.example.sanchaekhasong
 
-
+import android.Manifest
+import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.sanchaekhasong.databinding.ActivityMainBinding
+import com.example.sanchaekhasong.databinding.FragmentHomeBinding
 import com.example.sanchaekhasong.main.HomeFragment
 import com.example.sanchaekhasong.mypage.MyPageActivity
 import com.example.sanchaekhasong.ranking.RankingFragment
 import com.example.sanchaekhasong.route.RouteFragment
 import com.example.sanchaekhasong.store.StoreFragment
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.fitness.Fitness
+import com.google.android.gms.fitness.FitnessOptions
+import com.google.android.gms.fitness.data.DataType
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -89,7 +103,6 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.containers, fragment)
             .commit()
     }
-
 
 
 }
