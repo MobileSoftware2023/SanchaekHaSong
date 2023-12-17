@@ -23,7 +23,7 @@ class CollegeRankingFragment : Fragment() {
 
         val database = FirebaseDatabase.getInstance()
         val myData = database.getReference("@ranking_college")
-        myData.orderByValue().addListenerForSingleValueEvent(object : ValueEventListener {
+        myData.orderByValue().addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val orderedRankingList = ArrayList<Pair<String, Long>>()
                 for (snapshot in dataSnapshot.children) {
@@ -40,7 +40,6 @@ class CollegeRankingFragment : Fragment() {
 
                 binding.college3.text = rankingList[2].first
                 binding.walkCount3.text = rankingList[2].second.toString()+ " 걸음"
-
 
             }
 
