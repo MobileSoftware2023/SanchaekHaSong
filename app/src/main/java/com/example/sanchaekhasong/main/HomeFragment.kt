@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.preference.PreferenceManager
@@ -13,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -173,7 +175,7 @@ class HomeFragment : Fragment() {
 
     private fun setDayClickListener(textView: TextView, dayOfWeek: Int, currentDayOfWeek: Int) {
         // 오늘 이후의 요일에 해당하는 TextView에 대해서는 클릭 이벤트를 비활성화하고 텍스트 색상을 회색으로 변경
-        if (dayOfWeek > currentDayOfWeek && dayOfWeek != Calendar.SUNDAY) {
+        if (dayOfWeek > currentDayOfWeek && currentDayOfWeek != Calendar.SUNDAY) {
             textView.setOnClickListener(null)
             textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.white_grey))
         }else if (dayOfWeek == Calendar.SUNDAY) {
@@ -198,17 +200,23 @@ class HomeFragment : Fragment() {
             else -> return // 예상치 못한 경우, 처리 필요
         }
 
-        val currentDayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
-        val daysToSubtract = (currentDayOfWeek - desiredDayOfWeek + 7) % 7
-
         val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, -daysToSubtract)
+        val currentDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+
+        if (currentDayOfWeek  == Calendar.SUNDAY) {
+            // 일요일인 경우, 지난 주 해당 요일로 설정
+            calendar.add(Calendar.WEEK_OF_YEAR, -1)
+        }
+
+        // 일요일이 아닌 경우, 현재 주의 해당 요일로 설정
+        calendar.set(Calendar.DAY_OF_WEEK, desiredDayOfWeek)
 
         // 선택한 요일의 자정
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         calendar.set(Calendar.MINUTE, 0)
         calendar.set(Calendar.SECOND, 0)
         val startTime = calendar.timeInMillis
+
 
         // 해당 날의 23시 59분 59초
         calendar.set(Calendar.HOUR_OF_DAY, 23)
@@ -344,7 +352,7 @@ class HomeFragment : Fragment() {
                             }
                         }
                     }
-
+                    missionCheck(userInputSteps)
                     binding.StepCount.text = "$userInputSteps 걸음"
                     binding.DistancenCalories.text = "${String.format("%.2f", totalDistance / 1000)} km / ${String.format("%.2f", totalCalories)} kcal"
                 }
@@ -376,6 +384,7 @@ class HomeFragment : Fragment() {
         val collegeData = database.getReference("@college_walkCount")
         val rankingData = database.getReference("@ranking")
         val sumWalkCountReference = userData.child("sumWalkCount")
+        val collegeReference = database.getReference("@college")
 
         //오늘날짜
         val currentDate = Calendar.getInstance().apply {
@@ -407,7 +416,8 @@ class HomeFragment : Fragment() {
         val endTime = calendar.timeInMillis // 어제의 23시 59분 59초
         var currentSumWalkCount  =0L
         var newwalkCount =0L
-
+        var newCollegeData=0L
+        var collegePerson =0L
         // 추가: 월요일부터 앱을 실행한 날 전날까지의 축적 걸음수 일괄 업데이트
         if (currentDate > lastResetTimestamp) {
             lifecycleScope.launch {
@@ -431,7 +441,7 @@ class HomeFragment : Fragment() {
                         Log.e("Firebase", "Failed to read value.", error.toException())
                     }
                 })
-                // college_rankingData 및 rankingData 업데이트
+                // ranking 업데이트
                 rankingData.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val rankingDataValue= snapshot.value as? HashMap<String, Any>
@@ -456,7 +466,7 @@ class HomeFragment : Fragment() {
                         Log.e("Firebase", "Failed to read value.", error.toException())
                     }
                 })
-
+                //college_walkCount업데이트
                 collegeData.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val collegeRankingData =snapshot.value as? HashMap<String, Any>
@@ -465,7 +475,8 @@ class HomeFragment : Fragment() {
                             val collegeRankingData = collegeRankingData["$collegeName"] as? Long ?: 0
                             Log.d("cyabcdefg", "collegeRankingDatadetail:  $collegeRankingData")
                             val updateMap = HashMap<String, Any>()
-                            updateMap["$collegeName"]= collegeRankingData - currentSumWalkCount + newwalkCount
+                            newCollegeData = collegeRankingData - currentSumWalkCount + newwalkCount
+                            updateMap["$collegeName"]= newCollegeData
                             collegeData.updateChildren(updateMap)
                                 .addOnSuccessListener {
                                     Log.d("cyabcdefg", "college Ranking data updated successfully.")
@@ -481,6 +492,23 @@ class HomeFragment : Fragment() {
                         Log.e("Firebase", "Failed to read value.", error.toException())
                     }
                 })
+                collegeReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val collegePersonValue = snapshot.value as? HashMap<String, Any>
+                        Log.d("cyabcdefg", "collegePersonValue:  $collegePersonValue")
+                        if (collegePersonValue != null) {
+                            collegePerson =
+                                collegePersonValue["$collegeName"] as? Long ?: 0
+                            Log.d("cyabcdefg", "collegePersonValue:  $collegePersonValue")
+
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("Firebase", "Failed to read value.", error.toException())
+                    }
+                })
+                //단과대 랭킹을 위한 평균걸음수 업데이트
                 rankingCollegeData.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val rankingCollegeValue =snapshot.value as? HashMap<String, Any>
@@ -489,7 +517,8 @@ class HomeFragment : Fragment() {
                             val rankingCollegeValue = rankingCollegeValue["$collegeName"] as? Long ?: 0
                             Log.d("cyabcdefg", "collegeRankingDatadetail:  $rankingCollegeValue")
                             val updateMap = HashMap<String, Any>()
-                            updateMap["$collegeName"]= rankingCollegeValue - currentSumWalkCount + newwalkCount
+                            val averageCollegeWalk= newCollegeData/collegePerson
+                            updateMap["$collegeName"]=averageCollegeWalk
                             rankingCollegeData.updateChildren(updateMap)
                                 .addOnSuccessListener {
                                     Log.d("cyabcdefg", "college Ranking data updated successfully.")
@@ -506,6 +535,7 @@ class HomeFragment : Fragment() {
                     }
                 })
 
+
                 // 추가: 마지막 갱신 시간 업데이트
                 lastResetTimestamp = System.currentTimeMillis()
 
@@ -519,14 +549,16 @@ class HomeFragment : Fragment() {
             lastResetTimestamp = weekStartTimestamp
         }
     }
+    // 해당 주의 월요일을 계산하는 함수
     private fun calculateWeekStartTimestamp() {
         val calendar = Calendar.getInstance()
 
         // 현재 날짜의 요일을 구한다 (일요일: 1, 월요일: 2, ..., 토요일: 7)
         val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
 
-        // 일요일(1)에서 현재 요일을 빼면서 해당 주의 월요일을 구한다
-        calendar.add(Calendar.DAY_OF_YEAR, -dayOfWeek + Calendar.MONDAY)
+        // 현재 요일에서 2를 빼면 해당 주의 월요일로 이동
+        val daysUntilMonday = (dayOfWeek + 5) % 7
+        calendar.add(Calendar.DAY_OF_YEAR, -daysUntilMonday)
 
         // 해당 주의 월요일의 0시 0분 0초로 시간을 설정
         calendar.set(Calendar.HOUR_OF_DAY, 0)
@@ -693,6 +725,105 @@ class HomeFragment : Fragment() {
         for (dayId in allDayIds) {
             val dayTextView = binding.root.findViewById<TextView>(dayId)
             dayTextView.setBackgroundResource(if (dayId == id) R.drawable.day_select else android.R.color.transparent)
+        }
+    }
+    //missionCheck 함수추가
+    private fun missionCheck(StepCount: Int) {
+        val database = FirebaseDatabase.getInstance()
+        val username = FirebaseAuth.getInstance().currentUser?.email.toString().substringBeforeLast('@')
+        val dailyQuestData = database.getReference("$username").child("dailyQuest").child("isCompleted")
+
+        dailyQuestData.addListenerForSingleValueEvent(object : ValueEventListener  {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val isCompletedData = dataSnapshot.value as? MutableList<Boolean>
+
+                if (StepCount >= 10 && !isCompletedData?.get(0)!!) {
+                    isCompletedData?.set(0, true)
+                    dailyQuestData.setValue(isCompletedData)
+
+                    challengeDataListener(0)
+                }
+
+                if (StepCount >= 8000 && !isCompletedData?.get(1)!!) {
+                    isCompletedData?.set(1, true)
+                    dailyQuestData.setValue(isCompletedData)
+
+                    challengeDataListener(1)
+                }
+
+
+                if (StepCount >= 10000 && !isCompletedData?.get(2)!!) {
+                    isCompletedData?.set(2, true)
+                    dailyQuestData.setValue(isCompletedData)
+
+                    challengeDataListener(2)
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("Firebase", "Failed to read value.", error.toException())
+            }
+        })
+    }
+    private fun challengeDataListener (num: Int) {
+        val database = FirebaseDatabase.getInstance()
+        val username = FirebaseAuth.getInstance().currentUser?.email.toString().substringBeforeLast('@')
+        val challengeData = database.getReference("$username").child("challenge").child("progress")
+        challengeData.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val progressData = dataSnapshot.value as? HashMap<String, Any>
+                if ((progressData?.get("$num") as? Long ?: 0).toInt() < 30) {
+                    val progress = progressData?.get("$num") as? Long ?: 0
+                    val updateMap = HashMap<String, Any>()
+                    updateMap["$num"] = progress + 1
+                    challengeData.updateChildren(updateMap)
+                        .addOnSuccessListener {
+                            Log.d("cyabcdefg", "progressData[$num]updated successfully.")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("cyabcdefg", "Failed to update progressData[$num]", e)
+                        }
+
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("Firebase", "Failed to read value.", error.toException())
+            }
+        })
+
+    }
+
+
+
+
+
+    // Declare the launcher at the top of your Activity/Fragment:
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            // FCM SDK (and your app) can post notifications.
+        } else {
+            // TODO: Inform user that that your app will not show notifications.
+        }
+    }
+
+    private fun askNotificationPermission() {
+        // This is only necessary for API level >= 33 (TIRAMISU)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) ==
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                // FCM SDK (and your app) can post notifications.
+            } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                // TODO: display an educational UI explaining to the user the features that will be enabled
+                //       by them granting the POST_NOTIFICATION permission. This UI should provide the user
+                //       "OK" and "No thanks" buttons. If the user selects "OK," directly request the permission.
+                //       If the user selects "No thanks," allow the user to continue without notifications.
+            } else {
+                // Directly ask for the permission
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
     }
 

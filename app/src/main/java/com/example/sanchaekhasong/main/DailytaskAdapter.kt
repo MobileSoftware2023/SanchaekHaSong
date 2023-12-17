@@ -59,7 +59,7 @@ class DailytaskAdapter(
         }
 
         // 미션 달성 여부에 따라 TextView 스타일 변경
-        if (isCompleted) {
+        if (isCompleted && !isClicked) {
             // 미션 달성 시 노란색으로 설정 (원하는 색상으로 변경)
             holder.binding.missionCheck.setBackgroundResource(R.drawable.completed_rectangle)
 
