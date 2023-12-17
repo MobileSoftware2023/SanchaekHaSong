@@ -1,4 +1,4 @@
-package com.example.gpskotlintest
+package com.example.sanchaekhasong.route
 
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -54,9 +54,10 @@ class MyForegroundWork(
 
                     val targetLatitude = 37.5464846
                     val targetLongitude = 126.9671207
+                    Log.d("esp", "도착 지점 반경 밖")
 
                     if (isLocationWithinThreshold(currentLatitude, currentLongitude, targetLatitude, targetLongitude)) {
-                        val arrived = "목적지에 도착했습니다!\n위도: $currentLatitude\n경도: $currentLongitude"
+                        Log.d("esp", "도착 지점 반경 안")
                         sendArrivalNotification()
                         // 필요에 따라 위치 업데이트를 중단합니다.
                         stopLocationUpdates()
@@ -84,7 +85,7 @@ class MyForegroundWork(
 
     private fun isLocationWithinThreshold(currentLatitude: Double, currentLongitude: Double, targetLatitude: Double, targetLongitude: Double): Boolean {
         // Define a threshold for proximity (you can adjust this value)
-        val threshold = 0.0001
+        val threshold = 0.0003
 
         // Check if the current location is within the threshold of the target location
         val latitudeDifference = Math.abs(currentLatitude - targetLatitude)
@@ -94,6 +95,8 @@ class MyForegroundWork(
     }
 
     private fun sendArrivalNotification() {
+        Log.d("esp", "도착 알람")
+
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 

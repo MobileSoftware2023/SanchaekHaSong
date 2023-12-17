@@ -33,7 +33,6 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
-import com.example.gpskotlintest.MyForegroundWork
 import com.example.sanchaekhasong.R
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -222,8 +221,6 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
         val locationButtonView : LocationButtonView? = view?.findViewById<LocationButtonView>(R.id.locationBtn)
         locationButtonView?.setMap(naverMap)
 
-
-
         val start = Marker()
         start.position = LatLng(37.54639, 126.96466)
         start.map = naverMap
@@ -346,7 +343,6 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
         })
     }
 
-
     @SuppressLint("MissingPermission")
     private fun startBackgroundWork(){
         Log.d("MyApp", "startForegroundWork() called")
@@ -396,8 +392,8 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                     }
                 }
             }
-
     }
+
 /*
     @SuppressLint("MissingPermission")
     private fun startBackgroundWork(){
