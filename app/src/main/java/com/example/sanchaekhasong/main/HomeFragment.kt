@@ -2,8 +2,6 @@ package com.example.sanchaekhasong.main
 
 import android.Manifest
 import android.app.Activity
-import java.util.Calendar
-import java.util.concurrent.TimeUnit
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -34,8 +32,10 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -405,8 +405,8 @@ class HomeFragment : Fragment() {
         })
 
 
-        val college_rankingData = database.getReference("@college_walkCount").child("$collegeName")
-        val rankingData = database.getReference("@ranking").child("$username")
+        val college_rankingData = database.getReference("@college_walkCount")//.child("$collegeName")
+        val rankingData = database.getReference("@ranking")//.child("$username")
         val sumWalkCountReference = userData.child("sumWalkCount")
 
         //오늘날짜
@@ -438,7 +438,7 @@ class HomeFragment : Fragment() {
         calendar.set(Calendar.SECOND, 59)
         val endTime = calendar.timeInMillis // 어제의 23시 59분 59초
         var currentSumWalkCount  =0L
-        var walkCount =0L
+        var newwalkCount =0L
 
         // 추가: 월요일부터 앱을 실행한 날 전날까지의 축적 걸음수 일괄 업데이트
         if (currentDate > lastResetTimestamp) {
@@ -450,44 +450,70 @@ class HomeFragment : Fragment() {
                 val (newStepCount, _, _) = readHistoryData(startTime, endTime, listOf(DataType.TYPE_STEP_COUNT_DELTA))
 
                 // 추가: Firebase에 더하기
-                sumWalkCountReference.addValueEventListener(object : ValueEventListener {
+                sumWalkCountReference.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         currentSumWalkCount = snapshot.getValue(Long::class.java) ?: 0
                         sumWalkCountReference.setValue(newStepCount)
-                        walkCount = snapshot.getValue(Long::class.java) ?: 0
+                        newwalkCount = newStepCount.toLong()
+                        Log.d("walkCount", "walkCount: $newwalkCount")
+                        Log.d("currentSumWalkCount", "currentSumWalkCount: $currentSumWalkCount")
                         Toast.makeText(requireContext(), "walkCount : $newStepCount 만큼의 도보수를 DB에 저장했습니다.", Toast.LENGTH_SHORT).show()
 
-                        // college_rankingData 및 rankingData 업데이트
-                        college_rankingData.addValueEventListener(object : ValueEventListener {
-                            override fun onDataChange(snapshot: DataSnapshot) {
-                                val collegeRankingData = snapshot.getValue(Long::class.java) ?: 0
-                                college_rankingData.setValue(collegeRankingData - currentSumWalkCount + walkCount)
-                            }
-
-                            override fun onCancelled(error: DatabaseError) {
-                                Log.e("Firebase", "Failed to read value.", error.toException())
-                            }
-                        })
-
-                        rankingData.addValueEventListener(object : ValueEventListener {
-                            override fun onDataChange(snapshot: DataSnapshot) {
-                                val rankingDataValue = snapshot.getValue(Long::class.java) ?: 0
-                                rankingData.setValue(rankingDataValue - currentSumWalkCount + walkCount)
-                            }
-
-                            override fun onCancelled(error: DatabaseError) {
-                                Log.e("Firebase", "Failed to read value.", error.toException())
-                            }
-                        })
-
-                        // 마지막 초기화 시간 업데이트
-                        lastResetTimestamp = System.currentTimeMillis()
                     }
                     override fun onCancelled(error: DatabaseError) {
                         Log.e("Firebase", "Failed to read value.", error.toException())
                     }
                 })
+                // college_rankingData 및 rankingData 업데이트
+                rankingData.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val rankingDataValue= snapshot.value as? HashMap<String, Any>
+                        Log.d("cyabcdefg", "rankingDataValue:  $rankingDataValue")
+                        if (rankingDataValue != null) {
+                            // 'yourFieldName'은 실제 데이터 필드의 이름으로 변경해야 합니다.
+                            val rankingDataValue = rankingDataValue["$username"] as? Long ?: 0
+                            Log.d("cyabcdefg", "rankingDataValuedetail:  $rankingDataValue")
+                            val updateMap = HashMap<String, Any>()
+                            updateMap["$username"] = rankingDataValue - currentSumWalkCount + newwalkCount
+                            rankingData.updateChildren(updateMap)
+                                .addOnSuccessListener {
+                                    Log.d("cyabcdefg", "Ranking data updated successfully.")
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("cyabcdefg", "Failed to update ranking data.", e)
+                                }
+                        }
+                    }
 
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("Firebase", "Failed to read value.", error.toException())
+                    }
+                })
+
+                college_rankingData.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val collegeRankingData =snapshot.value as? HashMap<String, Any>
+                        Log.d("cyabcdefg", "collegeRankingData:  $collegeRankingData")
+                        if (collegeRankingData != null) {
+                            val collegeRankingData = collegeRankingData["$collegeName"] as? Long ?: 0
+                            Log.d("cyabcdefg", "collegeRankingDatadetail:  $collegeRankingData")
+                            val updateMap = HashMap<String, Any>()
+                            updateMap["$collegeName"]= collegeRankingData - currentSumWalkCount + newwalkCount
+                            college_rankingData.updateChildren(updateMap)
+                                .addOnSuccessListener {
+                                    Log.d("cyabcdefg", "college Ranking data updated successfully.")
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("cyabcdefg", "Failed to update college ranking data.", e)
+                                }
+
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("Firebase", "Failed to read value.", error.toException())
+                    }
+                })
 
                 // 추가: 마지막 초기화 시간 업데이트
                 lastResetTimestamp = System.currentTimeMillis()
