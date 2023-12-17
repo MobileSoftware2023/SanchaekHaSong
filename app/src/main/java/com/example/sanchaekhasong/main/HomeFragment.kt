@@ -89,12 +89,10 @@ class HomeFragment : Fragment() {
         binding=FragmentHomeBinding.inflate(inflater)
 
         binding.ChallengeTaskLayout.setOnClickListener {
-            // 다이얼로그 프래그먼트를 띄우기
             val dialogFragment = ChallengeTaskFragment()
             dialogFragment.show(parentFragmentManager, "ChallengeTaskFragmentTag")
         }
         binding.DailyTaskLayout.setOnClickListener {
-            // 다이얼로그 프래그먼트를 띄우기
             val dialogFragment = DailyTaskFragment()
             dialogFragment.show(parentFragmentManager, "DailyTaskFragmentTag")
         }
@@ -168,40 +166,10 @@ class HomeFragment : Fragment() {
             requestActivityRecognitionAndLocationPermission()
         } else {
             // 권한이 이미 부여되었으므로 로직을 진행합니다.
-            // 예를 들어, 액티비티를 시작하거나 어떤 작업을 수행합니다.
             startYourActivity()
         }
     }
 
-
-
-    // 해당 주의 월요일을 계산하는 함수
-    private fun calculateWeekStartTimestamp() {
-        val calendar = Calendar.getInstance()
-
-        // 현재 날짜의 요일을 구한다 (일요일: 1, 월요일: 2, ..., 토요일: 7)
-        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
-
-        // 일요일(1)에서 현재 요일을 빼면서 해당 주의 월요일을 구한다
-        val daysUntilMonday = (dayOfWeek + 6) % 7
-        calendar.add(Calendar.DAY_OF_YEAR, -daysUntilMonday)
-
-        // 해당 주의 월요일의 0시 0분 0초로 시간을 설정
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-
-        // 계산된 값을 weekStartTimestamp로 설정
-        weekStartTimestamp = calendar.timeInMillis
-    }
-    fun initializeApp() {
-        // 만약 lastResetTimestamp가 초기화되지 않았다면 초기화
-        if (lastResetTimestamp == 0L) {
-            calculateWeekStartTimestamp()
-            lastResetTimestamp = weekStartTimestamp
-        }
-    }
 
     private fun setDayClickListener(textView: TextView, dayOfWeek: Int, currentDayOfWeek: Int) {
         // 오늘 이후의 요일에 해당하는 TextView에 대해서는 클릭 이벤트를 비활성화하고 텍스트 색상을 회색으로 변경
@@ -404,9 +372,9 @@ class HomeFragment : Fragment() {
             }
         })
 
-
-        val college_rankingData = database.getReference("@college_walkCount")//.child("$collegeName")
-        val rankingData = database.getReference("@ranking")//.child("$username")
+        val rankingCollegeData =  database.getReference("@ranking_college")
+        val collegeData = database.getReference("@college_walkCount")
+        val rankingData = database.getReference("@ranking")
         val sumWalkCountReference = userData.child("sumWalkCount")
 
         //오늘날짜
@@ -457,7 +425,6 @@ class HomeFragment : Fragment() {
                         newwalkCount = newStepCount.toLong()
                         Log.d("walkCount", "walkCount: $newwalkCount")
                         Log.d("currentSumWalkCount", "currentSumWalkCount: $currentSumWalkCount")
-                        Toast.makeText(requireContext(), "walkCount : $newStepCount 만큼의 도보수를 DB에 저장했습니다.", Toast.LENGTH_SHORT).show()
 
                     }
                     override fun onCancelled(error: DatabaseError) {
@@ -490,7 +457,7 @@ class HomeFragment : Fragment() {
                     }
                 })
 
-                college_rankingData.addListenerForSingleValueEvent(object : ValueEventListener {
+                collegeData.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val collegeRankingData =snapshot.value as? HashMap<String, Any>
                         Log.d("cyabcdefg", "collegeRankingData:  $collegeRankingData")
@@ -499,7 +466,31 @@ class HomeFragment : Fragment() {
                             Log.d("cyabcdefg", "collegeRankingDatadetail:  $collegeRankingData")
                             val updateMap = HashMap<String, Any>()
                             updateMap["$collegeName"]= collegeRankingData - currentSumWalkCount + newwalkCount
-                            college_rankingData.updateChildren(updateMap)
+                            collegeData.updateChildren(updateMap)
+                                .addOnSuccessListener {
+                                    Log.d("cyabcdefg", "college Ranking data updated successfully.")
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("cyabcdefg", "Failed to update college ranking data.", e)
+                                }
+
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("Firebase", "Failed to read value.", error.toException())
+                    }
+                })
+                rankingCollegeData.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val rankingCollegeValue =snapshot.value as? HashMap<String, Any>
+                        Log.d("cyabcdefg", "rankingCollegeData:  $rankingCollegeData")
+                        if (rankingCollegeValue != null) {
+                            val rankingCollegeValue = rankingCollegeValue["$collegeName"] as? Long ?: 0
+                            Log.d("cyabcdefg", "collegeRankingDatadetail:  $rankingCollegeValue")
+                            val updateMap = HashMap<String, Any>()
+                            updateMap["$collegeName"]= rankingCollegeValue - currentSumWalkCount + newwalkCount
+                            rankingCollegeData.updateChildren(updateMap)
                                 .addOnSuccessListener {
                                     Log.d("cyabcdefg", "college Ranking data updated successfully.")
                                 }
@@ -515,17 +506,46 @@ class HomeFragment : Fragment() {
                     }
                 })
 
-                // 추가: 마지막 초기화 시간 업데이트
+                // 추가: 마지막 갱신 시간 업데이트
                 lastResetTimestamp = System.currentTimeMillis()
 
             }
         }
     }
+    fun initializeApp() {
+        // 만약 lastResetTimestamp가 초기화되지 않았다면 초기화
+        if (lastResetTimestamp == 0L) {
+            calculateWeekStartTimestamp()
+            lastResetTimestamp = weekStartTimestamp
+        }
+    }
+    private fun calculateWeekStartTimestamp() {
+        val calendar = Calendar.getInstance()
+
+        // 현재 날짜의 요일을 구한다 (일요일: 1, 월요일: 2, ..., 토요일: 7)
+        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+
+        // 일요일(1)에서 현재 요일을 빼면서 해당 주의 월요일을 구한다
+        calendar.add(Calendar.DAY_OF_YEAR, -dayOfWeek + Calendar.MONDAY)
+
+        // 해당 주의 월요일의 0시 0분 0초로 시간을 설정
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+
+        // 계산된 값을 weekStartTimestamp로 설정
+        weekStartTimestamp = calendar.timeInMillis
+    }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (resultCode) {
             Activity.RESULT_OK -> when (requestCode) {
-                MY_PERMISSIONS_REQUEST_ACTIVITY_RECOGNITION_AND_LOCATION -> subscribe()
+                MY_PERMISSIONS_REQUEST_ACTIVITY_RECOGNITION_AND_LOCATION -> {
+                    Toast.makeText(this.requireContext(), "google fit과 연동 성공하였습니다", Toast.LENGTH_SHORT).show()
+                    subscribe()
+                    updateWalkCountforDB()
+                }
                 else -> {
                     Toast.makeText(this.requireContext(), "google fit wasn't return result", Toast.LENGTH_SHORT).show()
                 }
