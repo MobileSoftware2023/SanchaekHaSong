@@ -124,8 +124,8 @@ class LoginActivity : AppCompatActivity() {
         myData.child("sumWalkCount").setValue(0)
         val challengeMissionList = listOf<String>(
             "6,000 걸음 이상 걷기를 100회 달성", "8,000 걸음 이상 걷기를 100회 달성",
-            "10,000 걸음 이상 걷기를 100회 달성", "ㅇㅇ 루트 걷기를 100회 달성",
-            "ㅁㅁ 루트 걷기를 100회 달성", "ㄹㄹ 루트 걷기를 100회 달성"
+            "10,000 걸음 이상 걷기를 100회 달성", "도서관-순헌관 루트 걷기를 100회 달성",
+            "명재관-프라임관 루트 걷기를 100회 달성", "숙대입구역-1캠정문 루트 걷기를 100회 달성"
         )
         myData.child("challenge").child("mission").setValue(challengeMissionList)
         val challengePoint = listOf<Int>(10000, 15000, 20000, 10000, 10000, 10000)
@@ -135,8 +135,8 @@ class LoginActivity : AppCompatActivity() {
         val completedList = listOf<Boolean>(false, false, false, false, false)
         myData.child("challenge").child("isCompleted").setValue(completedList)
         val dailyQuestList = listOf<String>("6,000 걸음 이상 걸어요.", "8,000 걸음 이상 걸어요.",
-            "10,000 걸음 이상 걸어요.", "ㅇㅇ 루트를 1회 걸어요.",
-            "ㅁㅁ 루트를 1회 걸어요.", "ㄹㄹ 루트를 1회 걸어요."
+            "10,000 걸음 이상 걸어요.", "도서관-순헌관 루트를 1회 걸어요.",
+            "명재관-프라임관 루트를 1회 걸어요.", "숙대입구역-1캠정문 루트를 1회 걸어요."
         )
         myData.child("dailyQuest").child("mission").setValue(dailyQuestList)
         val dailyPoint = listOf<Int>(100, 200, 300, 100, 100, 100)

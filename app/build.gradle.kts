@@ -58,5 +58,6 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.naver.maps:map-sdk:3.17.0")
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
 
 }

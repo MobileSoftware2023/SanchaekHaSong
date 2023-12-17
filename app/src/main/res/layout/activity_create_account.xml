@@ -133,7 +133,7 @@
             android:background="@drawable/text_border"
             android:layout_marginRight="20dp"
             android:layout_marginLeft="20dp"
-            android:hint="8자리 이상"
+            android:hint="6자리 이상"
             android:textSize="16sp"
             android:inputType="textPassword"
             />
