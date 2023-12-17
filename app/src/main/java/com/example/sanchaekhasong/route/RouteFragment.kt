@@ -1,9 +1,14 @@
 package com.example.sanchaekhasong.route
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.DialogInterface
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,11 +18,30 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import androidx.work.WorkRequest
+import com.example.gpskotlintest.MyForegroundWork
 import com.example.sanchaekhasong.R
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
 import com.naver.maps.map.CameraUpdate
@@ -32,6 +56,7 @@ import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.PathOverlay
 import com.naver.maps.map.util.FusedLocationSource
 import com.naver.maps.map.widget.LocationButtonView
+import java.util.concurrent.TimeUnit
 
 class RouteFragment : Fragment(), OnMapReadyCallback {
     private lateinit var mapView: MapView
@@ -39,6 +64,9 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
     private lateinit var viewPager: ViewPager2
 
     private lateinit var locationSource : FusedLocationSource
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    private lateinit var foregroundWorkRequest : OneTimeWorkRequest
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
@@ -54,23 +82,103 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
+
+    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
+        val backgroundLocationPermissionRequest = registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ){permissions ->
+            when {
+                permissions.getOrDefault(Manifest.permission.ACCESS_BACKGROUND_LOCATION, false) -> {
+                    //Toast.makeText(activity,"background location access granted", Toast.LENGTH_SHORT).show()
+                    val result = fusedLocationClient.getCurrentLocation(
+                        Priority.PRIORITY_BALANCED_POWER_ACCURACY, CancellationTokenSource().token
+                    )
+                }
+                else -> {
+                    //Toast.makeText(activity, "no background location access", Toast.LENGTH_SHORT).show()
+                }
+
+            }
+
+        }
+
+        val foregroundLocationPermissionRequest = registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            when {
+                permissions.getOrDefault(
+                    Manifest.permission.ACCESS_COARSE_LOCATION, false
+                ) -> {
+                    //Toast.makeText(activity,"foreground location access granted", Toast.LENGTH_SHORT).show()
+                    backgroundLocationPermissionRequest.launch(
+                        arrayOf(
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                        )
+                    )
+                }
+                else -> {
+                    //Toast.makeText(activity,"no location access", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+        }
+
+        requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 99)
+
+
+        if(!isLocationEnabled()){
+            val builder = activity?.let { it1 -> AlertDialog.Builder(it1) }
+            if (builder != null) {
+                builder.setMessage("위치 권한을 항상 허용으로 설정해주세요.")
+                    .setPositiveButton("확인",
+                        DialogInterface.OnClickListener { dialog, id ->
+                            foregroundLocationPermissionRequest.launch(
+                                arrayOf(
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                                )
+                            )
+                        })
+            }
+            if (builder != null) {
+                builder.show()
+            }
+        }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<String>,
-                                            grantResults: IntArray) {
-        if (locationSource.onRequestPermissionsResult(requestCode, permissions,
-                grantResults)) {
-            if (!locationSource.isActivated) {  // 권한 거부됨
-                naverMap.locationTrackingMode = LocationTrackingMode.None
-            }
-            return
+
+
+    private fun isLocationEnabled(): Boolean {
+        val permissionStatus = context?.let {
+            ContextCompat.checkSelfPermission(
+                it,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            )
         }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        return permissionStatus == PackageManager.PERMISSION_GRANTED
     }
+
+    /*override fun onRequestPermissionsResult(requestCode: Int,
+                                               permissions: Array<String>,
+                                               grantResults: IntArray) {
+           if (locationSource.onRequestPermissionsResult(requestCode, permissions,
+                   grantResults)) {
+               if (!locationSource.isActivated) {  // 권한 거부됨
+                   naverMap.locationTrackingMode = LocationTrackingMode.None
+               }
+               return
+           }
+           super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+       }
+
+     */
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -143,7 +251,7 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
 
         naverMap.addOnLocationChangeListener { location ->
             val currentLocation = LatLng(location.latitude, location.longitude)
-            _route1inRange = isWithinRadius(currentLocation, route1[0], 10000.0)
+            _route1inRange = isWithinRadius(currentLocation, route1[0], 1000.0)
             route1inRange_ = isWithinRadius(currentLocation, route1.last(), 30.0)
             _route2inRange = isWithinRadius(currentLocation, route2[0], 30.0)
             route2inRange_ = isWithinRadius(currentLocation, route2.last(), 30.0)
@@ -209,7 +317,7 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                     is FirstFragment ->{
                         val btnStart1 = currentFragment.view?.findViewById<Button>(R.id.btnStart1)
                         btnStart1?.setOnClickListener {
-                           routeProgress(_route1inRange,route1inRange_,R.drawable.route_one,R.string.route_one)
+                            routeProgress(_route1inRange,route1inRange_,R.drawable.route_one,R.string.route_one)
                         }
                     }
                     is SecondFragment ->{
@@ -236,6 +344,99 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
 
             }
         })
+    }
+
+
+    @SuppressLint("MissingPermission")
+    private fun startBackgroundWork(){
+        Log.d("MyApp", "startForegroundWork() called")
+
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        foregroundWorkRequest = OneTimeWorkRequest.Builder(MyForegroundWork::class.java)
+            .addTag("foregroundwork" + System.currentTimeMillis())
+            .setBackoffCriteria(
+                BackoffPolicy.LINEAR,
+                WorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.SECONDS
+            )
+            .setConstraints(constraints)
+            .build()
+
+        val workManager = WorkManager.getInstance(requireContext())
+        workManager.enqueue(foregroundWorkRequest)
+
+        // Work의 실행 상태를 확인하는 Observer를 등록
+        workManager.getWorkInfoByIdLiveData(foregroundWorkRequest.id)
+            .observe(viewLifecycleOwner) { workInfo ->
+                if (workInfo != null) {
+                    when (workInfo.state) {
+                        WorkInfo.State.ENQUEUED -> {
+                            // Work가 대기열에 추가됨
+                        }
+
+                        WorkInfo.State.RUNNING -> {
+                            // Work가 실행 중
+                        }
+
+                        WorkInfo.State.SUCCEEDED -> {
+                            // Work가 성공적으로 완료됨
+                        }
+
+                        WorkInfo.State.FAILED -> {
+                            // Work가 실패함
+                        }
+
+                        WorkInfo.State.CANCELLED -> {
+                            // Work가 취소됨
+                        }
+
+                        else -> {}
+                    }
+                }
+            }
+
+    }
+/*
+    @SuppressLint("MissingPermission")
+    private fun startBackgroundWork(){
+        Log.d("MyApp", "startBackgroundWork() called")
+        Toast.makeText(activity, "dd", Toast.LENGTH_SHORT)
+        foregroundWorkRequest = OneTimeWorkRequest.Builder(MyForegroundWork::class.java)
+            .addTag("foregroundwork" + System.currentTimeMillis())
+            .setBackoffCriteria(
+                BackoffPolicy.LINEAR,
+                WorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.SECONDS
+            )
+            .build()
+        WorkManager.getInstance(requireContext()).enqueue(foregroundWorkRequest!!)
+    }
+
+ */
+
+    private fun createLocationRequest() {
+        val locationRequest = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY, 10000
+        ).setMinUpdateIntervalMillis(5000).build()
+
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+        val client = LocationServices.getSettingsClient(requireActivity())
+        val task = client.checkLocationSettings(builder.build())
+
+        task.addOnSuccessListener {
+        }
+
+        task.addOnFailureListener{e->
+            if (e is ResolvableApiException){
+                try {
+                    e.startResolutionForResult(
+                        requireActivity(), 100
+                    )
+                } catch (_: java.lang.Exception){}
+            }
+        }
+
     }
 
 
@@ -296,6 +497,7 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
         if (_route || route_) {
             val bottomSheet = activity?.findViewById<LinearLayout>(R.id.bottom_sheet)
             Toast.makeText(activity, "루트 시작!", Toast.LENGTH_SHORT).show()
+            startBackgroundWork()
             bottomSheet?.visibility = View.GONE
             val progress = activity?.findViewById<LinearLayout>(R.id.route_progress)
             val img = activity?.findViewById<ImageView>(R.id.routeImg)

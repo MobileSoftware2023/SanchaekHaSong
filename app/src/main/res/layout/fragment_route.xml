@@ -25,8 +25,7 @@
         android:id="@+id/locationBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right|bottom"
-        android:layout_marginBottom="100dp"/>
+        android:layout_gravity="right|top"/>
 
     <LinearLayout
         android:id="@+id/route_progress"
