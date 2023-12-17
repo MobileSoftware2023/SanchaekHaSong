@@ -1,4 +1,4 @@
-package com.example.gpskotlintest
+package com.example.sanchaekhasong.route
 
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -152,7 +152,7 @@ class MyForegroundWork(
         ).setMinUpdateIntervalMillis(5000).build()
 
         for (i in 0..99) {
-            if (MyForegroundWork.isStopped) {
+            if (Companion.isStopped) {
                 break
             }
             try {

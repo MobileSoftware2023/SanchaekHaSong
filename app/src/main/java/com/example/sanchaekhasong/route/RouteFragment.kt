@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -21,7 +20,6 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -33,7 +31,6 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
-import com.example.gpskotlintest.MyForegroundWork
 import com.example.sanchaekhasong.R
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -51,7 +48,6 @@ import com.naver.maps.map.MapView
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapOptions
 import com.naver.maps.map.OnMapReadyCallback
-import com.naver.maps.map.UiSettings
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.PathOverlay
 import com.naver.maps.map.util.FusedLocationSource
@@ -251,7 +247,7 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
 
         naverMap.addOnLocationChangeListener { location ->
             val currentLocation = LatLng(location.latitude, location.longitude)
-            _route1inRange = isWithinRadius(currentLocation, route1[0], 1000.0)
+            _route1inRange = isWithinRadius(currentLocation, route1[0], 3000.0)
             route1inRange_ = isWithinRadius(currentLocation, route1.last(), 30.0)
             _route2inRange = isWithinRadius(currentLocation, route2[0], 30.0)
             route2inRange_ = isWithinRadius(currentLocation, route2.last(), 30.0)

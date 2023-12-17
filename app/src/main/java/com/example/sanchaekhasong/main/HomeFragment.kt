@@ -2,12 +2,11 @@ package com.example.sanchaekhasong.main
 
 import android.Manifest
 import android.app.Activity
-import java.util.Calendar
-import java.util.concurrent.TimeUnit
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.preference.PreferenceManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -18,7 +17,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.example.sanchaekhasong.OnDataChangeListener
 import com.example.sanchaekhasong.R
 import com.example.sanchaekhasong.databinding.FragmentHomeBinding
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -27,10 +25,17 @@ import com.google.android.gms.fitness.FitnessOptions
 import com.google.android.gms.fitness.data.DataType
 import com.google.android.gms.fitness.request.DataReadRequest
 import com.google.android.gms.fitness.result.DataReadResponse
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -38,10 +43,35 @@ import kotlin.coroutines.suspendCoroutine
 class HomeFragment : Fragment() {
     lateinit var binding:FragmentHomeBinding
     private lateinit var countdownTimer: CountDownTimer
-    private var onDataChangeListener: OnDataChangeListener? = null
     private val TAG = "BasicRecordingApi"
     private val MY_PERMISSIONS_REQUEST_ACTIVITY_RECOGNITION_AND_LOCATION = 1
+    // 추가: SharedPreferences 사용을 위한 키 정의
+    private val lastResetTimestampKey = "lastResetTimestamp"
+    private val weekStartTimestampKey = "weekStartTimestamp"
 
+    private var lastResetTimestamp: Long
+        get() {
+            return PreferenceManager.getDefaultSharedPreferences(requireContext())
+                .getLong(lastResetTimestampKey, 0)
+        }
+        set(value) {
+            PreferenceManager.getDefaultSharedPreferences(requireContext())
+                .edit()
+                .putLong(lastResetTimestampKey, value)
+                .apply()
+        }
+
+    private var weekStartTimestamp: Long
+        get() {
+            return PreferenceManager.getDefaultSharedPreferences(requireContext())
+                .getLong(weekStartTimestampKey, 0)
+        }
+        set(value) {
+            PreferenceManager.getDefaultSharedPreferences(requireContext())
+                .edit()
+                .putLong(weekStartTimestampKey, value)
+                .apply()
+        }
 
     private val fitnessOptions = FitnessOptions.builder()
         .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
@@ -57,8 +87,6 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding=FragmentHomeBinding.inflate(inflater)
-
-
 
         binding.ChallengeTaskLayout.setOnClickListener {
             // 다이얼로그 프래그먼트를 띄우기
@@ -96,12 +124,16 @@ class HomeFragment : Fragment() {
                 countdownTextView.text = "랭킹 종료 순위 집계중..."
             }
         }
+        Log.d("lastResetTimestamp", "lastResetTimestamp: $lastResetTimestamp")
 
         countdownTimer.start()
         return binding.root
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // 오늘의 요일을 얻어옴
+        val currentDayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
 
         // 각 요일의 TextView 참조
         val mondayTextView = binding.Monday
@@ -112,16 +144,15 @@ class HomeFragment : Fragment() {
         val saturdayTextView = binding.Saturday
         val sundayTextView = binding.Sunday
 
-        // 각 요일에 대한 클릭 이벤트 설정
-        mondayTextView.setOnClickListener { onDayClicked(mondayTextView) }
-        tuesdayTextView.setOnClickListener { onDayClicked(tuesdayTextView) }
-        wednesdayTextView.setOnClickListener { onDayClicked(wednesdayTextView) }
-        thursdayTextView.setOnClickListener { onDayClicked(thursdayTextView) }
-        fridayTextView.setOnClickListener { onDayClicked(fridayTextView) }
-        saturdayTextView.setOnClickListener { onDayClicked(saturdayTextView) }
-        sundayTextView.setOnClickListener { onDayClicked(sundayTextView) }
-
-
+        // 모든 요일에 대한 클릭 이벤트 설정
+        setDayClickListener(mondayTextView, Calendar.MONDAY, currentDayOfWeek)
+        setDayClickListener(tuesdayTextView, Calendar.TUESDAY, currentDayOfWeek)
+        setDayClickListener(wednesdayTextView, Calendar.WEDNESDAY, currentDayOfWeek)
+        setDayClickListener(thursdayTextView, Calendar.THURSDAY, currentDayOfWeek)
+        setDayClickListener(fridayTextView, Calendar.FRIDAY, currentDayOfWeek)
+        setDayClickListener(saturdayTextView, Calendar.SATURDAY, currentDayOfWeek)
+        setDayClickListener(sundayTextView, Calendar.SUNDAY, currentDayOfWeek)
+            
         // ... (다른 요일들의 클릭 이벤트 설정 추가)
         // 1. 권한이 부여되지 않았을 경우
         if (ContextCompat.checkSelfPermission(
@@ -142,6 +173,50 @@ class HomeFragment : Fragment() {
         }
     }
 
+
+
+    // 해당 주의 월요일을 계산하는 함수
+    private fun calculateWeekStartTimestamp() {
+        val calendar = Calendar.getInstance()
+
+        // 현재 날짜의 요일을 구한다 (일요일: 1, 월요일: 2, ..., 토요일: 7)
+        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+
+        // 일요일(1)에서 현재 요일을 빼면서 해당 주의 월요일을 구한다
+        val daysUntilMonday = (dayOfWeek + 6) % 7
+        calendar.add(Calendar.DAY_OF_YEAR, -daysUntilMonday)
+
+        // 해당 주의 월요일의 0시 0분 0초로 시간을 설정
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+
+        // 계산된 값을 weekStartTimestamp로 설정
+        weekStartTimestamp = calendar.timeInMillis
+    }
+    fun initializeApp() {
+        // 만약 lastResetTimestamp가 초기화되지 않았다면 초기화
+        if (lastResetTimestamp == 0L) {
+            calculateWeekStartTimestamp()
+            lastResetTimestamp = weekStartTimestamp
+        }
+    }
+
+    private fun setDayClickListener(textView: TextView, dayOfWeek: Int, currentDayOfWeek: Int) {
+        // 오늘 이후의 요일에 해당하는 TextView에 대해서는 클릭 이벤트를 비활성화하고 텍스트 색상을 회색으로 변경
+        if (dayOfWeek > currentDayOfWeek && dayOfWeek != Calendar.SUNDAY) {
+            textView.setOnClickListener(null)
+            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.white_grey))
+        }else if (dayOfWeek == Calendar.SUNDAY) {
+            textView.setOnClickListener(null)
+            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.white_grey))
+        }else {
+            // 오늘 이전의 날짜에 해당하는 TextView에 대해서는 클릭 이벤트 설정
+            textView.setOnClickListener { onDayClicked(textView) }
+            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+        }
+    }
     // 클릭 이벤트 핸들러에서 필요한 데이터를 전달하는 함수
     private fun onDayClicked(textView: TextView) {
         val desiredDayOfWeek = when (textView.id) {
@@ -209,11 +284,12 @@ class HomeFragment : Fragment() {
     }
 
     private fun formatTime(millis: Long): String {
-        val hours = millis / (1000 * 60 * 60)
+        val days = millis / (1000 * 60 * 60 * 24)
+        val hours = (millis % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
         val minutes = (millis % (1000 * 60 * 60)) / (1000 * 60)
-        val seconds = (millis % (1000 * 60)) / 1000
-        return String.format("%02d시 %02d분 %02d초", hours, minutes, seconds)
+        return String.format("%02dd %02dh %02dm", days, hours, minutes)
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -309,6 +385,142 @@ class HomeFragment : Fragment() {
                 }
         }
     }
+
+    private fun updateWalkCountforDB() {
+        val database = FirebaseDatabase.getInstance()
+        val username = FirebaseAuth.getInstance().currentUser?.email.toString().substringBeforeLast('@')
+
+        val userData = database.getReference("$username")
+        val college = userData.child("college") // 유저별 단과대 이름
+
+        var collegeName =""
+        college.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                collegeName = snapshot.getValue(String::class.java) ?: "단과대"
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("Firebase", "Failed to read value.", error.toException())
+            }
+        })
+
+
+        val college_rankingData = database.getReference("@college_walkCount")//.child("$collegeName")
+        val rankingData = database.getReference("@ranking")//.child("$username")
+        val sumWalkCountReference = userData.child("sumWalkCount")
+
+        //오늘날짜
+        val currentDate = Calendar.getInstance().apply {
+            timeInMillis =  System.currentTimeMillis()
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+
+        initializeApp()
+        var calendar = Calendar.getInstance()
+        calendar.timeInMillis = weekStartTimestamp
+
+        // weekStartTimestamp의 날짜로 설정
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+        // weekStartTimestamp의 날짜 (월요일)로 설정
+        calendar.set(year, month, dayOfWeek, 0, 0, 0)
+        val startTime = calendar.timeInMillis // 이번 주 월요일의 자정
+
+        // 어제의 마지막 시간으로 설정
+        calendar = Calendar.getInstance()
+        calendar.add(Calendar.DAY_OF_YEAR, -1)
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        val endTime = calendar.timeInMillis // 어제의 23시 59분 59초
+        var currentSumWalkCount  =0L
+        var newwalkCount =0L
+
+        // 추가: 월요일부터 앱을 실행한 날 전날까지의 축적 걸음수 일괄 업데이트
+        if (currentDate > lastResetTimestamp) {
+            lifecycleScope.launch {
+                // (이전 코드 생략...)
+                Toast.makeText(requireContext(), "걸음수를 업데이트 했습니다", Toast.LENGTH_SHORT).show()
+
+                // 추가: weekStartTimestamp부터 앱을 실행한 날 전날까지의 걸음수 가져오기
+                val (newStepCount, _, _) = readHistoryData(startTime, endTime, listOf(DataType.TYPE_STEP_COUNT_DELTA))
+
+                // 추가: Firebase에 더하기
+                sumWalkCountReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        currentSumWalkCount = snapshot.getValue(Long::class.java) ?: 0
+                        sumWalkCountReference.setValue(newStepCount)
+                        newwalkCount = newStepCount.toLong()
+                        Log.d("walkCount", "walkCount: $newwalkCount")
+                        Log.d("currentSumWalkCount", "currentSumWalkCount: $currentSumWalkCount")
+                        Toast.makeText(requireContext(), "walkCount : $newStepCount 만큼의 도보수를 DB에 저장했습니다.", Toast.LENGTH_SHORT).show()
+
+                    }
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("Firebase", "Failed to read value.", error.toException())
+                    }
+                })
+                // college_rankingData 및 rankingData 업데이트
+                rankingData.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val rankingDataValue= snapshot.value as? HashMap<String, Any>
+                        Log.d("cyabcdefg", "rankingDataValue:  $rankingDataValue")
+                        if (rankingDataValue != null) {
+                            // 'yourFieldName'은 실제 데이터 필드의 이름으로 변경해야 합니다.
+                            val rankingDataValue = rankingDataValue["$username"] as? Long ?: 0
+                            Log.d("cyabcdefg", "rankingDataValuedetail:  $rankingDataValue")
+                            val updateMap = HashMap<String, Any>()
+                            updateMap["$username"] = rankingDataValue - currentSumWalkCount + newwalkCount
+                            rankingData.updateChildren(updateMap)
+                                .addOnSuccessListener {
+                                    Log.d("cyabcdefg", "Ranking data updated successfully.")
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("cyabcdefg", "Failed to update ranking data.", e)
+                                }
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("Firebase", "Failed to read value.", error.toException())
+                    }
+                })
+
+                college_rankingData.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val collegeRankingData =snapshot.value as? HashMap<String, Any>
+                        Log.d("cyabcdefg", "collegeRankingData:  $collegeRankingData")
+                        if (collegeRankingData != null) {
+                            val collegeRankingData = collegeRankingData["$collegeName"] as? Long ?: 0
+                            Log.d("cyabcdefg", "collegeRankingDatadetail:  $collegeRankingData")
+                            val updateMap = HashMap<String, Any>()
+                            updateMap["$collegeName"]= collegeRankingData - currentSumWalkCount + newwalkCount
+                            college_rankingData.updateChildren(updateMap)
+                                .addOnSuccessListener {
+                                    Log.d("cyabcdefg", "college Ranking data updated successfully.")
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("cyabcdefg", "Failed to update college ranking data.", e)
+                                }
+
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("Firebase", "Failed to read value.", error.toException())
+                    }
+                })
+
+                // 추가: 마지막 초기화 시간 업데이트
+                lastResetTimestamp = System.currentTimeMillis()
+
+            }
+        }
+    }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (resultCode) {
@@ -377,8 +589,11 @@ class HomeFragment : Fragment() {
         } else {
             Toast.makeText(this.requireContext(), "google fit과 연동 성공하였습니다", Toast.LENGTH_SHORT).show()
             subscribe()
+            updateWalkCountforDB()
         }
     }
+
+
     private suspend fun readHistoryData(startTime: Long, endTime : Long, dataTypes: List<DataType>): Triple<Int, Float, Float> {
         return suspendCoroutine { continuation ->
             val account = GoogleSignIn.getAccountForExtension(this.requireActivity(), fitnessOptions)
@@ -397,7 +612,7 @@ class HomeFragment : Fragment() {
                         continuation.resume(result)
                     }
                     .addOnFailureListener { e ->
-                        Log.w(TAG, "There was a problem getting the data.", e)
+                        Log.w("HistoryData", "There was a problem getting the data.", e)
                         continuation.resume(Triple(0, 0f, 0f))
                     }
             } ?: continuation.resume(Triple(0, 0f, 0f))
