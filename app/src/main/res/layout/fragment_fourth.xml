@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/routes_background"
+    android:padding="18dp"
+    tools:context=".route.ThirdFragment"
+    android:orientation="vertical"
+    android:id="@+id/fragment_third">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/route_four"
+            android:background="@drawable/bottomsheet_bar"
+            android:clipToOutline="true"
+            />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/route_four"
+                android:textSize="18dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="프라임관-명신관"
+                android:textSize="15dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="5dp"
+                android:textColor="#777777" />
+            <LinearLayout
+                android:layout_width="76dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@drawable/routes_background"
+                android:padding="3dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="1dp"
+                    android:src="@drawable/coin" />
+                <TextView
+                    android:id="@+id/point"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="3dp"
+                    android:text="100C"
+                    android:textSize="15dp"
+                    android:textColor="#777777"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+        <Button
+            android:id="@+id/btnStart4"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/ic_startbtn" />
+    </LinearLayout>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@drawable/bottomsheet_bar"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="15dp"
+        >
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_weight="1">
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_marginRight="2dp"
+                android:src="@drawable/ic_marker"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dp"
+                android:text="195m"
+                android:textSize="16dp"
+                android:textColor="#777777"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_weight="1">
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:padding="1dp"
+                android:layout_marginRight="2dp"
+                android:src="@drawable/ic_footsteps"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dp"
+                android:text="305걸음"
+                android:textSize="16dp"
+                android:textColor="#777777"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_weight="1">
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:padding="1dp"
+                android:layout_marginRight="2dp"
+                android:src="@drawable/ic_watch"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dp"
+                android:text="4분"
+                android:textSize="16dp"
+                android:textColor="#777777"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</LinearLayout>

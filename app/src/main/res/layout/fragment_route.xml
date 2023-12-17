@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_route"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".route.RouteFragment">
+
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".route.RouteFragment">
+
+        <com.naver.maps.map.MapView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/navermap"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </FrameLayout>
+
+    <com.naver.maps.map.widget.LocationButtonView
+        android:id="@+id/locationBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:layout_marginBottom="100dp"/>
+
+    <LinearLayout
+        android:id="@+id/route_progress"
+        android:layout_width="match_parent"
+        android:layout_height="130dp"
+        android:background="@drawable/routes_background"
+        android:layout_marginTop="420dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:orientation="horizontal"
+        android:padding="15dp"
+        android:visibility="gone">
+        <ImageView
+            android:id="@+id/routeImg"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/route_one"
+            android:background="@drawable/bottomsheet_bar"
+            android:clipToOutline="true"/>
+        <TextView
+            android:id="@+id/routeName"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/route_one"
+            android:textColor="#000000"
+            android:textSize="18dp"/>
+        <Button
+            android:id="@+id/route_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="취소"
+            />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:background="@drawable/bottomsheet_background"
+        android:orientation="vertical"
+        android:padding="15dp"
+        app:behavior_hideable="false"
+        app:behavior_peekHeight="90dp"
+        android:visibility="visible"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <!-- persistent bottom sheet의 Content -->
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="4dp"
+            android:background="@drawable/bottomsheet_bar"
+            android:layout_gravity="center"
+            android:layout_marginTop="5dp"/>
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/RouteViewPager"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"/>
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
