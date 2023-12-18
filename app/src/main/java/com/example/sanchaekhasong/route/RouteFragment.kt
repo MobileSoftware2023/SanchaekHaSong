@@ -51,6 +51,7 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
     val username = FirebaseAuth.getInstance().currentUser?.email.toString().substringBeforeLast('@')
     val myData = database.getReference("$username")
 
+
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
     }
@@ -263,6 +264,7 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                         var currentPoint = dataSnapshot.child("point").value as Long
                         currentPoint+=100
                         myData.child("point").setValue(currentPoint)
+
                     }
                     override fun onCancelled(databaseError: DatabaseError) {
                         Log.e("TAG_DB", "onCancelled", databaseError.toException())
@@ -323,7 +325,10 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
                         var currentPoint = dataSnapshot.child("point").value as Long
                         currentPoint+=100
+                        val index = 3
                         myData.child("point").setValue(currentPoint)
+                        myData.child("dailyQuest").child("isCompleted").child("$index").setValue(true)
+
                     }
                     override fun onCancelled(databaseError: DatabaseError) {
                         Log.e("TAG_DB", "onCancelled", databaseError.toException())
