@@ -1,12 +1,7 @@
 package com.example.sanchaekhasong.route
 
-import android.Manifest
-import android.annotation.SuppressLint
 import android.content.DialogInterface
-import android.content.pm.PackageManager
 import android.graphics.Color
-import android.location.LocationManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -18,29 +13,12 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import androidx.work.BackoffPolicy
-import androidx.work.Constraints
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkInfo
-import androidx.work.WorkManager
-import androidx.work.WorkRequest
 import com.example.sanchaekhasong.R
-import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationSettingsRequest
-import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationTokenSource
+import com.example.sanchaekhasong.databinding.FragmentRouteBinding
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
 import com.naver.maps.map.CameraUpdate
@@ -50,22 +28,28 @@ import com.naver.maps.map.MapView
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapOptions
 import com.naver.maps.map.OnMapReadyCallback
-import com.naver.maps.map.UiSettings
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.PathOverlay
 import com.naver.maps.map.util.FusedLocationSource
 import com.naver.maps.map.widget.LocationButtonView
-import java.util.concurrent.TimeUnit
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+
+
 
 class RouteFragment : Fragment(), OnMapReadyCallback {
     private lateinit var mapView: MapView
     private lateinit var naverMap: NaverMap
     private lateinit var viewPager: ViewPager2
-
+    private lateinit var binding: FragmentRouteBinding
     private lateinit var locationSource : FusedLocationSource
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
-    private lateinit var foregroundWorkRequest : OneTimeWorkRequest
+    val database = FirebaseDatabase.getInstance()
+    val username = FirebaseAuth.getInstance().currentUser?.email.toString().substringBeforeLast('@')
+    val myData = database.getReference("$username")
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
@@ -73,7 +57,7 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
     class ViewPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activity){
         val fragments:List<Fragment>
         init {
-            fragments = listOf(FirstFragment(), SecondFragment(), ThirdFragment(), FourthFragment())
+            fragments = listOf(FirstFragment(), SecondFragment(), ThirdFragment())
         }
         override fun getItemCount(): Int = fragments.size
         override fun createFragment(position: Int): Fragment {
@@ -81,89 +65,13 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
-
-    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-        val backgroundLocationPermissionRequest = registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        ){permissions ->
-            when {
-                permissions.getOrDefault(Manifest.permission.ACCESS_BACKGROUND_LOCATION, false) -> {
-                    //Toast.makeText(activity,"background location access granted", Toast.LENGTH_SHORT).show()
-                    val result = fusedLocationClient.getCurrentLocation(
-                        Priority.PRIORITY_BALANCED_POWER_ACCURACY, CancellationTokenSource().token
-                    )
-                }
-                else -> {
-                    //Toast.makeText(activity, "no background location access", Toast.LENGTH_SHORT).show()
-                }
-
-            }
-
-        }
-
-        val foregroundLocationPermissionRequest = registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        ) { permissions ->
-            when {
-                permissions.getOrDefault(
-                    Manifest.permission.ACCESS_COARSE_LOCATION, false
-                ) -> {
-                    //Toast.makeText(activity,"foreground location access granted", Toast.LENGTH_SHORT).show()
-                    backgroundLocationPermissionRequest.launch(
-                        arrayOf(
-                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                        )
-                    )
-                }
-                else -> {
-                    //Toast.makeText(activity,"no location access", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-        }
-
-        requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 99)
-
-
-        if(!isLocationEnabled()){
-            val builder = activity?.let { it1 -> AlertDialog.Builder(it1) }
-            if (builder != null) {
-                builder.setMessage("위치 권한을 항상 허용으로 설정해주세요.")
-                    .setPositiveButton("확인",
-                        DialogInterface.OnClickListener { dialog, id ->
-                            foregroundLocationPermissionRequest.launch(
-                                arrayOf(
-                                    Manifest.permission.ACCESS_FINE_LOCATION,
-                                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                                )
-                            )
-                        })
-            }
-            if (builder != null) {
-                builder.show()
-            }
-        }
     }
 
-
-
-    private fun isLocationEnabled(): Boolean {
-        val permissionStatus = context?.let {
-            ContextCompat.checkSelfPermission(
-                it,
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            )
-        }
-        return permissionStatus == PackageManager.PERMISSION_GRANTED
-    }
-
-    /*override fun onRequestPermissionsResult(requestCode: Int,
+    override fun onRequestPermissionsResult(requestCode: Int,
                                                permissions: Array<String>,
                                                grantResults: IntArray) {
            if (locationSource.onRequestPermissionsResult(requestCode, permissions,
@@ -176,7 +84,6 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
        }
 
-     */
 
 
     override fun onCreateView(
@@ -193,19 +100,13 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
 
         return rootView
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewPager = view.findViewById(R.id.RouteViewPager)
         viewPager.adapter = ViewPagerAdapter(requireActivity())
-
-        /*val btn2 = view.findViewById<Button>(R.id.btnStart2)
-        btn2.setOnClickListener {
-            Toast.makeText(activity, "dd", Toast.LENGTH_SHORT)
-        }*/
-
     }
 
-    @SuppressLint("UseRequireInsteadOfGet")
     override fun onMapReady(naverMap: NaverMap) {
         val options = NaverMapOptions()
             .camera(CameraPosition(LatLng(37.546, 126.965), 15.0))  // 카메라 위치 (위도,경도,줌)
@@ -243,25 +144,25 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
         var route2inRange_ = false
         var _route3inRange = false
         var route3inRange_ = false
-        var _route4inRange = false
-        var route4inRange_ = false
+
 
         naverMap.addOnLocationChangeListener { location ->
             val currentLocation = LatLng(location.latitude, location.longitude)
-            _route1inRange = isWithinRadius(currentLocation, route1[0], 1000.0)
+            _route1inRange = isWithinRadius(currentLocation, route1[0], 3000.0)
             route1inRange_ = isWithinRadius(currentLocation, route1.last(), 30.0)
             _route2inRange = isWithinRadius(currentLocation, route2[0], 30.0)
             route2inRange_ = isWithinRadius(currentLocation, route2.last(), 30.0)
             _route3inRange = isWithinRadius(currentLocation, route3[0], 30.0)
             route3inRange_ = isWithinRadius(currentLocation, route3.last(), 30.0)
-            _route4inRange = isWithinRadius(currentLocation, route4[0], 30.0)
-            route4inRange_ = isWithinRadius(currentLocation, route4.last(), 30.0)
+
         }
 
         val btnStart1 = activity?.findViewById<Button>(R.id.btnStart1)
         btnStart1?.setOnClickListener {
             routeProgress(_route1inRange,route1inRange_,R.drawable.route_one,R.string.route_one)
         }
+
+        //Toast.makeText(activity, "도착!!", Toast.LENGTH_SHORT).show()
 
         viewPager?.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
@@ -298,24 +199,14 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                         naverMap.moveCamera(cameraUpdate1)
                         naverMap.moveCamera(cameraUpdate2)
                     }
-                    3->{
-                        start.position = route4[0]
-                        end.position = route4.last()
-                        path.coords = route4
-                        path.map = naverMap
-                        val cameraUpdate1 = CameraUpdate.scrollTo(LatLng(37.545345, 126.964265))
-                        val cameraUpdate2 = CameraUpdate.zoomTo(16.5)
-                        naverMap.moveCamera(cameraUpdate1)
-                        naverMap.moveCamera(cameraUpdate2)
-                    }
                 }
-
                 when (currentFragment){
                     is FirstFragment ->{
                         val btnStart1 = currentFragment.view?.findViewById<Button>(R.id.btnStart1)
                         btnStart1?.setOnClickListener {
                             routeProgress(_route1inRange,route1inRange_,R.drawable.route_one,R.string.route_one)
                         }
+
                     }
                     is SecondFragment ->{
                         val btnStart2 = currentFragment.view?.findViewById<Button>(R.id.btnStart2)
@@ -330,111 +221,216 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                         }
 
                     }
-                    is FourthFragment ->{
-                        val btnStart4 = currentFragment.view?.findViewById<Button>(R.id.btnStart4)
-                        btnStart4?.setOnClickListener {
-                            routeProgress(_route4inRange,route4inRange_,R.drawable.route_four,R.string.route_four)
-                        }
-                    }
 
                 }
 
             }
         })
-    }
 
-    @SuppressLint("MissingPermission")
-    private fun startBackgroundWork(){
-        Log.d("MyApp", "startForegroundWork() called")
+        val routeComplete = activity?.findViewById<Button>(R.id.route_complete)
+        val bottomSheet = activity?.findViewById<LinearLayout>(R.id.bottom_sheet)
+        val progress = activity?.findViewById<LinearLayout>(R.id.route_progress)
 
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
+        val start1 = activity?.findViewById<View>(R.id._route1)
+        val start2 = activity?.findViewById<View>(R.id.route1_)
+        val start3 = activity?.findViewById<View>(R.id._route2)
+        val start4 = activity?.findViewById<View>(R.id.route2_)
+        val start5 = activity?.findViewById<View>(R.id._route3)
+        val start6 = activity?.findViewById<View>(R.id.route3_)
 
-        foregroundWorkRequest = OneTimeWorkRequest.Builder(MyForegroundWork::class.java)
-            .addTag("foregroundwork" + System.currentTimeMillis())
-            .setBackoffCriteria(
-                BackoffPolicy.LINEAR,
-                WorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.SECONDS
-            )
-            .setConstraints(constraints)
-            .build()
-
-        val workManager = WorkManager.getInstance(requireContext())
-        workManager.enqueue(foregroundWorkRequest)
-
-        // Work의 실행 상태를 확인하는 Observer를 등록
-        workManager.getWorkInfoByIdLiveData(foregroundWorkRequest.id)
-            .observe(viewLifecycleOwner) { workInfo ->
-                if (workInfo != null) {
-                    when (workInfo.state) {
-                        WorkInfo.State.ENQUEUED -> {
-                            // Work가 대기열에 추가됨
-                        }
-
-                        WorkInfo.State.RUNNING -> {
-                            // Work가 실행 중
-                        }
-
-                        WorkInfo.State.SUCCEEDED -> {
-                            // Work가 성공적으로 완료됨
-                        }
-
-                        WorkInfo.State.FAILED -> {
-                            // Work가 실패함
-                        }
-
-                        WorkInfo.State.CANCELLED -> {
-                            // Work가 취소됨
-                        }
-
-                        else -> {}
-                    }
+        routeComplete?.setOnClickListener {
+            /*if (start1?.visibility==View.INVISIBLE&&route1inRange_){
+                Toast.makeText(activity, "도착1!!", Toast.LENGTH_SHORT).show()
+                start1?.visibility=View.GONE
+            }*/
+            if (start1?.visibility==View.INVISIBLE&&_route1inRange){
+                //Toast.makeText(activity, "도착1!!", Toast.LENGTH_SHORT).show()
+                val builder = activity?.let { it1 -> AlertDialog.Builder(it1) }
+                if (builder != null) {
+                    builder.setMessage("도서관-순헌관 루트 걷기를 완료했어요!")
+                        .setPositiveButton("확인",
+                            DialogInterface.OnClickListener { dialog, id ->
+                            })
                 }
+                // 다이얼로그를 띄워주기
+                if (builder != null) {
+                    builder.show()
+                }
+
+                myData.orderByValue().addListenerForSingleValueEvent(object :
+                    ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        var currentPoint = dataSnapshot.child("point").value as Long
+                        currentPoint+=100
+                        myData.child("point").setValue(currentPoint)
+                    }
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        Log.e("TAG_DB", "onCancelled", databaseError.toException())
+                    }
+                })
+
+                start1?.visibility=View.GONE
+                bottomSheet?.visibility=View.VISIBLE
+                progress?.visibility=View.GONE
+
+            } else if (start2?.visibility==View.INVISIBLE&&_route1inRange){
+                //Toast.makeText(activity, "도착2!!", Toast.LENGTH_SHORT).show()
+                val builder = activity?.let { it1 -> AlertDialog.Builder(it1) }
+                if (builder != null) {
+                    builder.setMessage("도서관-순헌관 루트 걷기를 완료했어요!")
+                        .setPositiveButton("확인",
+                            DialogInterface.OnClickListener { dialog, id ->
+                            })
+                }
+                // 다이얼로그를 띄워주기
+                if (builder != null) {
+                    builder.show()
+                }
+
+                myData.orderByValue().addListenerForSingleValueEvent(object :
+                    ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        var currentPoint = dataSnapshot.child("point").value as Long
+                        currentPoint+=100
+                        myData.child("point").setValue(currentPoint)
+                    }
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        Log.e("TAG_DB", "onCancelled", databaseError.toException())
+                    }
+                })
+
+                start1?.visibility=View.GONE
+                bottomSheet?.visibility=View.VISIBLE
+                progress?.visibility=View.GONE
+
+
+            }else if (start3?.visibility==View.INVISIBLE&&route2inRange_){
+                //Toast.makeText(activity, "도착3!!", Toast.LENGTH_SHORT).show()
+                val builder = activity?.let { it1 -> AlertDialog.Builder(it1) }
+                if (builder != null) {
+                    builder.setMessage("명재관-프라임관 루트 걷기를 완료했어요!")
+                        .setPositiveButton("확인",
+                            DialogInterface.OnClickListener { dialog, id ->
+                            })
+                }
+                // 다이얼로그를 띄워주기
+                if (builder != null) {
+                    builder.show()
+                }
+
+                myData.orderByValue().addListenerForSingleValueEvent(object :
+                    ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        var currentPoint = dataSnapshot.child("point").value as Long
+                        currentPoint+=100
+                        myData.child("point").setValue(currentPoint)
+                    }
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        Log.e("TAG_DB", "onCancelled", databaseError.toException())
+                    }
+                })
+
+                start1?.visibility=View.GONE
+                bottomSheet?.visibility=View.VISIBLE
+                progress?.visibility=View.GONE
+
+            }else if (start4?.visibility==View.INVISIBLE&&_route2inRange){
+                //Toast.makeText(activity, "도착4!!", Toast.LENGTH_SHORT).show()
+                val builder = activity?.let { it1 -> AlertDialog.Builder(it1) }
+                if (builder != null) {
+                    builder.setMessage("명재관-프라임관 루트 걷기를 완료했어요!")
+                        .setPositiveButton("확인",
+                            DialogInterface.OnClickListener { dialog, id ->
+                            })
+                }
+                // 다이얼로그를 띄워주기
+                if (builder != null) {
+                    builder.show()
+                }
+
+                myData.orderByValue().addListenerForSingleValueEvent(object :
+                    ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        var currentPoint = dataSnapshot.child("point").value as Long
+                        currentPoint+=100
+                        myData.child("point").setValue(currentPoint)
+                    }
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        Log.e("TAG_DB", "onCancelled", databaseError.toException())
+                    }
+                })
+
+                start1?.visibility=View.GONE
+                bottomSheet?.visibility=View.VISIBLE
+                progress?.visibility=View.GONE
+
+            }else if (start5?.visibility==View.INVISIBLE&&route3inRange_){
+                //Toast.makeText(activity, "도착5!!", Toast.LENGTH_SHORT).show()
+                val builder = activity?.let { it1 -> AlertDialog.Builder(it1) }
+                if (builder != null) {
+                    builder.setMessage("숙대입구역-1캠정문 루트 걷기를 완료했어요!")
+                        .setPositiveButton("확인",
+                            DialogInterface.OnClickListener { dialog, id ->
+                            })
+                }
+                // 다이얼로그를 띄워주기
+                if (builder != null) {
+                    builder.show()
+                }
+
+                myData.orderByValue().addListenerForSingleValueEvent(object :
+                    ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        var currentPoint = dataSnapshot.child("point").value as Long
+                        currentPoint+=100
+                        myData.child("point").setValue(currentPoint)
+                    }
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        Log.e("TAG_DB", "onCancelled", databaseError.toException())
+                    }
+                })
+
+                start1?.visibility=View.GONE
+                bottomSheet?.visibility=View.VISIBLE
+                progress?.visibility=View.GONE
+
+            }else if (start6?.visibility==View.INVISIBLE&&_route3inRange){
+                //Toast.makeText(activity, "도착6!!", Toast.LENGTH_SHORT).show()
+                val builder = activity?.let { it1 -> AlertDialog.Builder(it1) }
+                if (builder != null) {
+                    builder.setMessage("숙대입구역-1캠정문 루트 걷기를 완료했어요!")
+                        .setPositiveButton("확인",
+                            DialogInterface.OnClickListener { dialog, id ->
+                            })
+                }
+                // 다이얼로그를 띄워주기
+                if (builder != null) {
+                    builder.show()
+                }
+
+                myData.orderByValue().addListenerForSingleValueEvent(object :
+                    ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        var currentPoint = dataSnapshot.child("point").value as Long
+                        currentPoint+=100
+                        myData.child("point").setValue(currentPoint)
+                    }
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        Log.e("TAG_DB", "onCancelled", databaseError.toException())
+                    }
+                })
+
+                start1?.visibility=View.GONE
+                bottomSheet?.visibility=View.VISIBLE
+                progress?.visibility=View.GONE
+
+            } else {
+                Toast.makeText(activity, "도착지점 반경 30m 내에서 완료해주세요", Toast.LENGTH_SHORT).show()
             }
-    }
-
-/*
-    @SuppressLint("MissingPermission")
-    private fun startBackgroundWork(){
-        Log.d("MyApp", "startBackgroundWork() called")
-        Toast.makeText(activity, "dd", Toast.LENGTH_SHORT)
-        foregroundWorkRequest = OneTimeWorkRequest.Builder(MyForegroundWork::class.java)
-            .addTag("foregroundwork" + System.currentTimeMillis())
-            .setBackoffCriteria(
-                BackoffPolicy.LINEAR,
-                WorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.SECONDS
-            )
-            .build()
-        WorkManager.getInstance(requireContext()).enqueue(foregroundWorkRequest!!)
-    }
-
- */
-
-    private fun createLocationRequest() {
-        val locationRequest = LocationRequest.Builder(
-            Priority.PRIORITY_HIGH_ACCURACY, 10000
-        ).setMinUpdateIntervalMillis(5000).build()
-
-        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
-        val client = LocationServices.getSettingsClient(requireActivity())
-        val task = client.checkLocationSettings(builder.build())
-
-        task.addOnSuccessListener {
         }
 
-        task.addOnFailureListener{e->
-            if (e is ResolvableApiException){
-                try {
-                    e.startResolutionForResult(
-                        requireActivity(), 100
-                    )
-                } catch (_: java.lang.Exception){}
-            }
-        }
 
     }
-
 
     override fun onStart() {
         super.onStart()
@@ -489,20 +485,51 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
         return distance <= radius
     }
 
-    fun routeProgress(_route : Boolean, route_: Boolean, routeImg : Int, routeName : Int){
+    fun routeProgress(_route : Boolean, route_: Boolean, routeImg : Int, routeName : Int) {
+        val start1 = activity?.findViewById<View>(R.id._route1)
+        val start2 = activity?.findViewById<View>(R.id.route1_)
+        val start3 = activity?.findViewById<View>(R.id._route2)
+        val start4 = activity?.findViewById<View>(R.id.route2_)
+        val start5 = activity?.findViewById<View>(R.id._route3)
+        val start6 = activity?.findViewById<View>(R.id.route3_)
+
+        val bottomSheet = activity?.findViewById<LinearLayout>(R.id.bottom_sheet)
+        val progress = activity?.findViewById<LinearLayout>(R.id.route_progress)
+        val img = activity?.findViewById<ImageView>(R.id.routeImg)
+        val name = activity?.findViewById<TextView>(R.id.routeName)
+
         if (_route || route_) {
-            val bottomSheet = activity?.findViewById<LinearLayout>(R.id.bottom_sheet)
-            Toast.makeText(activity, "루트 시작!", Toast.LENGTH_SHORT).show()
-            startBackgroundWork()
+            when (routeName){
+                R.string.route_one ->{
+                    if (_route==true){
+                        start1?.visibility=View.INVISIBLE
+                    } else if (route_==true){
+                        start2?.visibility=View.INVISIBLE
+                    }
+                }
+                R.string.route_two ->{
+                    if (_route==true){
+                        start3?.visibility=View.INVISIBLE
+                    } else if (route_==true){
+                        start4?.visibility=View.INVISIBLE
+                    }
+                }
+                R.string.route_three ->{
+                    if (_route==true){
+                        start5?.visibility=View.INVISIBLE
+                    } else if (route_==true){
+                        start6?.visibility=View.INVISIBLE
+                    }
+                }
+            }
+
+            Toast.makeText(activity, "루트 시작 $_route, $route_!", Toast.LENGTH_SHORT).show()
             bottomSheet?.visibility = View.GONE
-            val progress = activity?.findViewById<LinearLayout>(R.id.route_progress)
-            val img = activity?.findViewById<ImageView>(R.id.routeImg)
-            val name = activity?.findViewById<TextView>(R.id.routeName)
             img?.setImageResource(routeImg)
             name?.setText(routeName)
             progress?.visibility = View.VISIBLE
-            val route1Cancel = activity?.findViewById<Button>(R.id.route_cancel)
-            route1Cancel?.setOnClickListener{
+            val routeCancel = activity?.findViewById<Button>(R.id.route_cancel)
+            routeCancel?.setOnClickListener{
                 val builder = activity?.let { it1 -> AlertDialog.Builder(it1) }
                 if (builder != null) {
                     builder.setMessage("루트 진행을 중단하시겠습니까?")
@@ -520,12 +547,12 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                     builder.show()
                 }
             }
+
         }
         else {
             Toast.makeText(activity, "양 끝 지점의 반경 30m 내에서 시작해주세요.", Toast.LENGTH_SHORT).show()
         }
     }
-
 
     val route1 = listOf(
         LatLng(37.546390, 126.964660),
@@ -549,7 +576,7 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
         LatLng(37.545675, 126.966720),
         LatLng(37.545490, 126.966240),
         LatLng(37.545450, 126.965610),
-        LatLng(37.545300, 126.965610),
+        LatLng(37.545300, 126.965610),  
         LatLng(37.545180, 126.965500),
         LatLng(37.545250, 126.964950),
         LatLng(37.544900, 126.964930)
@@ -565,11 +592,4 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
         LatLng(37.545090, 126.965900),
         LatLng(37.545290, 126.964900)
     )
-    val route4 = listOf(
-        LatLng(37.544900, 126.964930),
-        LatLng(37.545810, 126.964880),
-        LatLng(37.545760, 126.963980),
-        LatLng(37.545790, 126.963600)
-    )
-
 }

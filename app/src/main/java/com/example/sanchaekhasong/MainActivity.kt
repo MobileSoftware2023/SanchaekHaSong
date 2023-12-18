@@ -38,6 +38,11 @@ class MainActivity : AppCompatActivity() {
     var initTime = 0L
     lateinit var binding : ActivityMainBinding
 
+    private var routeFragment : RouteFragment? = null
+    private var homeFragment : HomeFragment? = null
+    private var storeFragment : StoreFragment? = null
+    private var rankingFragment : RankingFragment? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -67,15 +72,64 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
+
         //Home?Main?Fragment완성시 setFragment를 Home으로 변경
-        setFragment(HomeFragment())
+        homeFragment=HomeFragment()
+        setFragment(homeFragment!!)
 
         binding.bottomNavigationview.setOnItemSelectedListener { item ->
             when(item.itemId) {
-                R.id.home -> setFragment(HomeFragment())
-                R.id.rank -> setFragment(RankingFragment())
-                R.id.map-> setFragment(RouteFragment())
-                R.id.store-> setFragment(StoreFragment())
+                R.id.home -> {
+                    if (homeFragment==null){
+                        homeFragment= HomeFragment()
+                        supportFragmentManager.beginTransaction()
+                            .add(R.id.containers, homeFragment!!)
+                            .commit()                    }
+                    if(homeFragment!=null) supportFragmentManager.beginTransaction().show(homeFragment!!).commit()
+                    if(routeFragment!=null) supportFragmentManager.beginTransaction().hide(routeFragment!!).commit()
+                    if(storeFragment!=null) supportFragmentManager.beginTransaction().hide(storeFragment!!).commit()
+                    if(rankingFragment!=null) supportFragmentManager.beginTransaction().hide(rankingFragment!!).commit()
+
+                    return@setOnItemSelectedListener true
+                }
+                R.id.rank -> {
+                    if (rankingFragment==null){
+                        rankingFragment= RankingFragment()
+                        supportFragmentManager.beginTransaction()
+                            .add(R.id.containers, rankingFragment!!)
+                            .commit()                    }
+                    if(rankingFragment!=null) supportFragmentManager.beginTransaction().show(rankingFragment!!).commit()
+                    if(routeFragment!=null) supportFragmentManager.beginTransaction().hide(routeFragment!!).commit()
+                    if(homeFragment!=null) supportFragmentManager.beginTransaction().hide(homeFragment!!).commit()
+                    if(storeFragment!=null) supportFragmentManager.beginTransaction().hide(storeFragment!!).commit()
+                    return@setOnItemSelectedListener true
+                }
+                R.id.map-> {
+                    if (routeFragment==null){
+                        routeFragment= RouteFragment()
+                        supportFragmentManager.beginTransaction()
+                            .add(R.id.containers, routeFragment!!)
+                            .commit()                    }
+                    if(routeFragment!=null) supportFragmentManager.beginTransaction().show(routeFragment!!).commit()
+                    if(homeFragment!=null) supportFragmentManager.beginTransaction().hide(homeFragment!!).commit()
+                    if(storeFragment!=null) supportFragmentManager.beginTransaction().hide(storeFragment!!).commit()
+                    if(rankingFragment!=null) supportFragmentManager.beginTransaction().hide(rankingFragment!!).commit()
+
+                    return@setOnItemSelectedListener true
+                }
+                R.id.store-> {
+                    if (storeFragment==null){
+                        storeFragment= StoreFragment()
+                        supportFragmentManager.beginTransaction()
+                            .add(R.id.containers, storeFragment!!)
+                            .commit()                    }
+                    if(storeFragment!=null) supportFragmentManager.beginTransaction().show(storeFragment!!).commit()
+                    if(routeFragment!=null) supportFragmentManager.beginTransaction().hide(routeFragment!!).commit()
+                    if(homeFragment!=null) supportFragmentManager.beginTransaction().hide(homeFragment!!).commit()
+                    if(rankingFragment!=null) supportFragmentManager.beginTransaction().hide(rankingFragment!!).commit()
+
+                    return@setOnItemSelectedListener true
+                }
             }
             true
         }
