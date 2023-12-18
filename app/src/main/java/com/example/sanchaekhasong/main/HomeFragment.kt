@@ -52,7 +52,11 @@ class HomeFragment : Fragment() {
     // 추가: SharedPreferences 사용을 위한 키 정의
     private val lastResetTimestampKey = "lastResetTimestamp"
     private val weekStartTimestampKey = "weekStartTimestamp"
-
+    private val requiredPermissions = arrayOf(
+        Manifest.permission.ACTIVITY_RECOGNITION,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.POST_NOTIFICATIONS
+    )
     private var lastResetTimestamp: Long
         get() {
             return PreferenceManager.getDefaultSharedPreferences(requireContext())
@@ -86,6 +90,7 @@ class HomeFragment : Fragment() {
         .addDataType(DataType.AGGREGATE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
         .addDataType(DataType.AGGREGATE_DISTANCE_DELTA, FitnessOptions.ACCESS_READ)
         .build()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -133,10 +138,9 @@ class HomeFragment : Fragment() {
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // 오늘의 요일을 얻어옴
+
         val currentDayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
 
-        // 각 요일의 TextView 참조
         val mondayTextView = binding.Monday
         val tuesdayTextView = binding.Tuesday
         val wednesdayTextView = binding.Wednesday
@@ -145,18 +149,6 @@ class HomeFragment : Fragment() {
         val saturdayTextView = binding.Saturday
         val sundayTextView = binding.Sunday
 
-        // 요일에 따라 백그라운드 설정
-        when (currentDayOfWeek) {
-            Calendar.MONDAY -> onDayClicked(mondayTextView)
-            Calendar.TUESDAY -> onDayClicked(tuesdayTextView)
-            Calendar.WEDNESDAY -> onDayClicked(wednesdayTextView)
-            Calendar.THURSDAY -> onDayClicked(thursdayTextView)
-            Calendar.FRIDAY -> onDayClicked(fridayTextView)
-            Calendar.SATURDAY -> onDayClicked(saturdayTextView)
-            Calendar.SUNDAY -> onDayClicked(sundayTextView)
-        }
-
-        // 모든 요일에 대한 클릭 이벤트 설정
         setDayClickListener(mondayTextView, Calendar.MONDAY, currentDayOfWeek)
         setDayClickListener(tuesdayTextView, Calendar.TUESDAY, currentDayOfWeek)
         setDayClickListener(wednesdayTextView, Calendar.WEDNESDAY, currentDayOfWeek)
@@ -164,24 +156,20 @@ class HomeFragment : Fragment() {
         setDayClickListener(fridayTextView, Calendar.FRIDAY, currentDayOfWeek)
         setDayClickListener(saturdayTextView, Calendar.SATURDAY, currentDayOfWeek)
         setDayClickListener(sundayTextView, Calendar.SUNDAY, currentDayOfWeek)
-            
-        // ... (다른 요일들의 클릭 이벤트 설정 추가)
-        // 1. 권한이 부여되지 않았을 경우
-        if (ContextCompat.checkSelfPermission(
-                this.requireContext(),
-                Manifest.permission.ACTIVITY_RECOGNITION
-            ) != PackageManager.PERMISSION_GRANTED
-            || ContextCompat.checkSelfPermission(
-                this.requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // 권한이 부여되지 않았으므로 권한을 요청합니다.
+
+        if (requiredPermissions.any {
+                ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    it
+                ) != PackageManager.PERMISSION_GRANTED
+            }) {
+            // 하나라도 권한이 부여되지 않았으므로 권한을 요청합니다.
             requestActivityRecognitionAndLocationPermission()
         } else {
-            // 권한이 이미 부여되었으므로 로직을 진행합니다.
+            // 모든 권한이 이미 부여되었으므로 로직을 진행합니다.
             startYourActivity()
         }
+
     }
 
 
@@ -367,6 +355,7 @@ class HomeFragment : Fragment() {
                     missionCheck(userInputSteps)
                     binding.StepCount.text = "$userInputSteps 걸음"
                     binding.DistancenCalories.text = "${String.format("%.2f", totalDistance / 1000)} km / ${String.format("%.2f", totalCalories)} kcal"
+
                 }
                 .addOnFailureListener { e ->
                     Log.w(TAG, "There was a problem getting the step count.", e)
@@ -408,19 +397,12 @@ class HomeFragment : Fragment() {
         }.timeInMillis
 
         initializeApp()
-        var calendar = Calendar.getInstance()
-        calendar.timeInMillis = weekStartTimestamp
 
-        // weekStartTimestamp의 날짜로 설정
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
-        // weekStartTimestamp의 날짜 (월요일)로 설정
-        calendar.set(year, month, dayOfWeek, 0, 0, 0)
-        val startTime = calendar.timeInMillis // 이번 주 월요일의 자정
+
+        val startTime = weekStartTimestamp // 이번 주 월요일의 자정
 
         // 어제의 마지막 시간으로 설정
-        calendar = Calendar.getInstance()
+        var calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, -1)
         calendar.set(Calendar.HOUR_OF_DAY, 23)
         calendar.set(Calendar.MINUTE, 59)
@@ -556,11 +538,12 @@ class HomeFragment : Fragment() {
     }
     fun initializeApp() {
         // 만약 lastResetTimestamp가 초기화되지 않았다면 초기화
+        calculateWeekStartTimestamp()
         if (lastResetTimestamp == 0L) {
-            calculateWeekStartTimestamp()
             lastResetTimestamp = weekStartTimestamp
         }
     }
+
     // 해당 주의 월요일을 계산하는 함수
     private fun calculateWeekStartTimestamp() {
         val calendar = Calendar.getInstance()
@@ -568,9 +551,15 @@ class HomeFragment : Fragment() {
         // 현재 날짜의 요일을 구한다 (일요일: 1, 월요일: 2, ..., 토요일: 7)
         val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
 
-        // 현재 요일에서 2를 빼면 해당 주의 월요일로 이동
-        val daysUntilMonday = (dayOfWeek + 5) % 7
-        calendar.add(Calendar.DAY_OF_YEAR, -daysUntilMonday)
+        // 오늘이 일요일인 경우
+        if (dayOfWeek == Calendar.SUNDAY) {
+            // 현재 요일에서 6일을 빼면 해당 주의 월요일로 이동
+            calendar.add(Calendar.DAY_OF_YEAR, -6)
+        } else {
+            // 현재 요일에서 2를 빼면 해당 주의 월요일로 이동
+            val daysUntilMonday = (dayOfWeek + 5) % 7
+            calendar.add(Calendar.DAY_OF_YEAR, -daysUntilMonday)
+        }
 
         // 해당 주의 월요일의 0시 0분 0초로 시간을 설정
         calendar.set(Calendar.HOUR_OF_DAY, 0)
@@ -583,12 +572,12 @@ class HomeFragment : Fragment() {
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        Log.d("cyasdfb", "onActivityResult")
         when (resultCode) {
             Activity.RESULT_OK -> when (requestCode) {
                 MY_PERMISSIONS_REQUEST_ACTIVITY_RECOGNITION_AND_LOCATION -> {
                     Toast.makeText(this.requireContext(), "google fit과 연동 성공하였습니다", Toast.LENGTH_SHORT).show()
-                    subscribe()
-                    updateWalkCountforDB()
+                    startYourActivity()
                 }
                 else -> {
                     Toast.makeText(this.requireContext(), "google fit wasn't return result", Toast.LENGTH_SHORT).show()
@@ -601,16 +590,13 @@ class HomeFragment : Fragment() {
     }
     // 2. 권한을 요청하는 함수
     private fun requestActivityRecognitionAndLocationPermission() {
-        // 권한을 요청합니다.
+        Log.d("cyasdfb", "requestActivityRecognitionAndLocationPermission")
         ActivityCompat.requestPermissions(
             this.requireActivity(),
-            arrayOf(
-                Manifest.permission.POST_NOTIFICATIONS,
-                Manifest.permission.ACTIVITY_RECOGNITION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ),
+            requiredPermissions,
             MY_PERMISSIONS_REQUEST_ACTIVITY_RECOGNITION_AND_LOCATION
         )
+        startYourActivity()
     }
 
     // 3. 권한 요청 결과를 처리하는 함수
@@ -619,27 +605,25 @@ class HomeFragment : Fragment() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
+        Log.d("cyasdfb", "onRequestPermissionsResult")
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         Log.d("requestCode" ,"$requestCode")
         when (requestCode) {
             MY_PERMISSIONS_REQUEST_ACTIVITY_RECOGNITION_AND_LOCATION -> {
                 // 권한 요청 결과를 확인합니다.
                 if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-                    // 권한이 부여되었으므로 로직을 진행합니다.
-                    // 예를 들어, 액티비티를 시작하거나 어떤 작업을 수행합니다.
                     Toast.makeText(this.requireContext(), "권한 재요청 성공.", Toast.LENGTH_SHORT).show()
-                    startYourActivity()
                 } else {
                     //권한이 거부되었을 경우 처리합니다.
                     Toast.makeText(this.requireContext(), "권한이 거부되었습니다.", Toast.LENGTH_SHORT).show()
                 }
             }
-            // 필요한 경우 다른 권한 요청도 처리합니다.
         }
     }
 
     // 4. 권한이 부여된 후에 실행하려는 로직을 담은 함수
     private fun startYourActivity() {
+        Log.d("cyasdfb", "startYourActivity")
         // 여기에 권한이 부여된 후에 수행하고자 하는 작업을 추가합니다.
         val account = GoogleSignIn.getAccountForExtension(this.requireContext(), fitnessOptions)
         Toast.makeText(this.requireContext(), "google fit과 연동중입니다.", Toast.LENGTH_SHORT).show()
@@ -655,6 +639,18 @@ class HomeFragment : Fragment() {
             Toast.makeText(this.requireContext(), "google fit과 연동 성공하였습니다", Toast.LENGTH_SHORT).show()
             subscribe()
             updateWalkCountforDB()
+            // 요일에 따라 백그라운드 설정
+            // 오늘의 요일을 얻어옴
+            val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+            when (today) {
+                Calendar.MONDAY -> onDayClicked(binding.Monday)
+                Calendar.TUESDAY -> onDayClicked(binding.Tuesday)
+                Calendar.WEDNESDAY -> onDayClicked(binding.Wednesday)
+                Calendar.THURSDAY -> onDayClicked(binding.Thursday)
+                Calendar.FRIDAY -> onDayClicked(binding.Friday)
+                Calendar.SATURDAY -> onDayClicked(binding.Saturday)
+                Calendar.SUNDAY -> onDayClicked(binding.Sunday)
+            }
         }
     }
 
@@ -740,6 +736,8 @@ class HomeFragment : Fragment() {
             dayTextView.setBackgroundResource(if (dayId == id) R.drawable.day_select else android.R.color.transparent)
         }
     }
+
+
     //missionCheck 함수추가
     private fun missionCheck(StepCount: Int) {
         val database = FirebaseDatabase.getInstance()

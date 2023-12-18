@@ -1,7 +1,11 @@
 package com.example.sanchaekhasong.route
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.DialogInterface
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -639,7 +643,7 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
         LatLng(37.545675, 126.966720),
         LatLng(37.545490, 126.966240),
         LatLng(37.545450, 126.965610),
-        LatLng(37.545300, 126.965610),  
+        LatLng(37.545300, 126.965610),
         LatLng(37.545180, 126.965500),
         LatLng(37.545250, 126.964950),
         LatLng(37.544900, 126.964930)
