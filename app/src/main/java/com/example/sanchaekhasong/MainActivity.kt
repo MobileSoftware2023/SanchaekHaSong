@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -32,6 +33,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.messaging.FirebaseMessaging
 
 private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
@@ -75,8 +77,33 @@ class MainActivity : AppCompatActivity() {
 
         //Home?Main?Fragment완성시 setFragment를 Home으로 변경
         homeFragment=HomeFragment()
-        setFragment(homeFragment!!)
 
+        // FCM 토큰 얻기
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val token = task.result
+                // 얻은 토큰을 서버로 전송하거나 다른 작업 수행
+                // 예: 서버 API 호출 등
+                println("FCM 토큰: $token")
+            } else {
+                // 토큰 얻기 실패
+                println("FCM 토큰 얻기 실패")
+            }
+        }
+
+        // FCM 토큰 갱신 이벤트 리스너 등록
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val refreshedToken = task.result
+                // 토큰 갱신 처리
+                println("갱신된 FCM 토큰: $refreshedToken")
+            } else {
+                // 토큰 갱신 실패
+                println("FCM 토큰 갱신 실패")
+            }
+        }
+
+        setFragment(homeFragment!!)
         binding.bottomNavigationview.setOnItemSelectedListener { item ->
             when(item.itemId) {
                 R.id.home -> {
@@ -156,6 +183,37 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.containers, fragment)
             .commit()
+    }
+
+
+    // Declare the launcher at the top of your Activity/Fragment:
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            // FCM SDK (and your app) can post notifications.
+        } else {
+            // TODO: Inform user that that your app will not show notifications.
+        }
+    }
+
+    private fun askNotificationPermission() {
+        // This is only necessary for API level >= 33 (TIRAMISU)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                // FCM SDK (and your app) can post notifications.
+            } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                // TODO: display an educational UI explaining to the user the features that will be enabled
+                //       by them granting the POST_NOTIFICATION permission. This UI should provide the user
+                //       "OK" and "No thanks" buttons. If the user selects "OK," directly request the permission.
+                //       If the user selects "No thanks," allow the user to continue without notifications.
+            } else {
+                // Directly ask for the permission
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
     }
 
 
