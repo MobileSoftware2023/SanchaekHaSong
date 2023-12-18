@@ -149,7 +149,7 @@ class LoginActivity : AppCompatActivity() {
         myData.child("challenge").child("point").setValue(challengePoint)
         val progressList = listOf<Int>(0, 0, 0, 0, 0, 0)
         myData.child("challenge").child("progress").setValue(progressList)
-        val completedList = listOf<Boolean>(false, false, false, false, false)
+        val completedList = listOf<Boolean>(false, false, false, false, false, false)
         myData.child("challenge").child("isCompleted").setValue(completedList)
         val dailyQuestList = listOf<String>("6,000 걸음 이상 걸어요.", "8,000 걸음 이상 걸어요.",
             "10,000 걸음 이상 걸어요.", "도서관-순헌관 루트를 1회 걸어요.",
