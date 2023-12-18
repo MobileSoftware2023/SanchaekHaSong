@@ -15,6 +15,8 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.functions.FirebaseFunctions
 
 class LoginActivity : AppCompatActivity() {
     lateinit var binding: ActivityLoginBinding
@@ -64,6 +66,21 @@ class LoginActivity : AppCompatActivity() {
                     binding.passwordText.text.clear()
                     if(task.isSuccessful){
                         if(auth.currentUser?.isEmailVerified == true){
+                            // Firebase 메시징 서비스 초기화
+                            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    val fcmToken = task.result
+                                    // 서버에 토큰을 저장
+                                    if (fcmToken != null) {
+                                        sendFCMTokenToServer(fcmToken)
+                                    } else {
+                                        Log.e("tokenFCMFailed", "FCM registration token is null")
+                                    }
+                                } else {
+                                    // 토큰 얻기 실패
+                                    Log.e("tokenFCMFailed", "Fetching FCM registration token failed")
+                                }
+                            }
                             Toast.makeText(baseContext, "로그인 성공. $username 님 환영합니다.", Toast.LENGTH_SHORT).show()
                             val intent : Intent = Intent(this, MainActivity::class.java)
                             startActivity(intent)
@@ -179,5 +196,36 @@ class LoginActivity : AppCompatActivity() {
         return email.substringAfterLast('@')
     }
 
+    val functions = FirebaseFunctions.getInstance()
+
+    // 클라이언트에서 호출하는 함수
+    // Firebase Cloud Functions 호출 함수
+    private fun sendFCMTokenToServer(fcmToken: String) {
+        val userId = FirebaseAuth.getInstance().currentUser?.email.toString().substringBeforeLast('@')
+        // Cloud Functions 호출
+        val functions = FirebaseFunctions.getInstance()
+        val data = hashMapOf(
+            "userId" to userId,
+            "fcmToken" to fcmToken
+        )
+
+        functions
+            .getHttpsCallable("saveFCMTokenToServer")
+            .call(data)
+            .continueWith { task ->
+                // Cloud Functions 호출 결과 처리
+                val result = task.result?.data as HashMap<*, *>?
+                val success = result?.get("status") == "success"
+                val message = result?.get("message") as String
+
+                if (success) {
+                    // 성공적으로 저장됐을 때의 처리
+                    println("FCM token saved successfully: $message")
+                } else {
+                    // 저장에 실패했을 때의 처리
+                    println("Error saving FCM token: $message")
+                }
+            }
+    }
 
 }
