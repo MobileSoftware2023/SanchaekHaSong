@@ -36,7 +36,6 @@ class DeleteAccountActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         binding.emailText.text = auth.currentUser?.email.toString()
         binding.passwordText.addTextChangedListener(watcher)
-
         username = binding.emailText.text.toString().substringBeforeLast('@')
 
         binding.deleteBtn.setOnClickListener {
@@ -129,7 +128,6 @@ class DeleteAccountActivity : AppCompatActivity() {
                         Log.e("Firebase", "경로 삭제 실패", task.exception)
                     }
                 }
-                //college랭킹정보도 삭제할까?? 아님 어차피 다음 업데이트할거니까??
             }
             else {
                 Toast.makeText(this, task.exception.toString(), Toast.LENGTH_SHORT).show()
