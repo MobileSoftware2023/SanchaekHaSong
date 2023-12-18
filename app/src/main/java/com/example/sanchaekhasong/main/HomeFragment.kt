@@ -415,10 +415,11 @@ class HomeFragment : Fragment() {
             }
         })
 
-
-        val college_rankingData = database.getReference("@college_walkCount")//.child("$collegeName")
-        val rankingData = database.getReference("@ranking")//.child("$username")
+        val rankingCollegeData =  database.getReference("@ranking_college")
+        val collegeData = database.getReference("@college_walkCount")
+        val rankingData = database.getReference("@ranking")
         val sumWalkCountReference = userData.child("sumWalkCount")
+        val collegeReference = database.getReference("@college")
 
         //오늘날짜
         val currentDate = Calendar.getInstance().apply {
@@ -450,7 +451,8 @@ class HomeFragment : Fragment() {
         val endTime = calendar.timeInMillis // 어제의 23시 59분 59초
         var currentSumWalkCount  =0L
         var newwalkCount =0L
-
+        var newCollegeData=0L
+        var collegePerson =0L
         // 추가: 월요일부터 앱을 실행한 날 전날까지의 축적 걸음수 일괄 업데이트
         if (currentDate > lastResetTimestamp) {
             lifecycleScope.launch {
@@ -468,14 +470,13 @@ class HomeFragment : Fragment() {
                         newwalkCount = newStepCount.toLong()
                         Log.d("walkCount", "walkCount: $newwalkCount")
                         Log.d("currentSumWalkCount", "currentSumWalkCount: $currentSumWalkCount")
-                        Toast.makeText(requireContext(), "walkCount : $newStepCount 만큼의 도보수를 DB에 저장했습니다.", Toast.LENGTH_SHORT).show()
 
                     }
                     override fun onCancelled(error: DatabaseError) {
                         Log.e("Firebase", "Failed to read value.", error.toException())
                     }
                 })
-                // college_rankingData 및 rankingData 업데이트
+                // ranking 업데이트
                 rankingData.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val rankingDataValue= snapshot.value as? HashMap<String, Any>
@@ -500,8 +501,8 @@ class HomeFragment : Fragment() {
                         Log.e("Firebase", "Failed to read value.", error.toException())
                     }
                 })
-
-                college_rankingData.addListenerForSingleValueEvent(object : ValueEventListener {
+                //college_walkCount업데이트
+                collegeData.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val collegeRankingData =snapshot.value as? HashMap<String, Any>
                         Log.d("cyabcdefg", "collegeRankingData:  $collegeRankingData")
@@ -509,8 +510,51 @@ class HomeFragment : Fragment() {
                             val collegeRankingData = collegeRankingData["$collegeName"] as? Long ?: 0
                             Log.d("cyabcdefg", "collegeRankingDatadetail:  $collegeRankingData")
                             val updateMap = HashMap<String, Any>()
-                            updateMap["$collegeName"]= collegeRankingData - currentSumWalkCount + newwalkCount
-                            college_rankingData.updateChildren(updateMap)
+                            newCollegeData = collegeRankingData - currentSumWalkCount + newwalkCount
+                            updateMap["$collegeName"]= newCollegeData
+                            collegeData.updateChildren(updateMap)
+                                .addOnSuccessListener {
+                                    Log.d("cyabcdefg", "college Ranking data updated successfully.")
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("cyabcdefg", "Failed to update college ranking data.", e)
+                                }
+
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("Firebase", "Failed to read value.", error.toException())
+                    }
+                })
+                collegeReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val collegePersonValue = snapshot.value as? HashMap<String, Any>
+                        Log.d("cyabcdefg", "collegePersonValue:  $collegePersonValue")
+                        if (collegePersonValue != null) {
+                            collegePerson =
+                                collegePersonValue["$collegeName"] as? Long ?: 0
+                            Log.d("cyabcdefg", "collegePersonValue:  $collegePersonValue")
+
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("Firebase", "Failed to read value.", error.toException())
+                    }
+                })
+                //단과대 랭킹을 위한 평균걸음수 업데이트
+                rankingCollegeData.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val rankingCollegeValue =snapshot.value as? HashMap<String, Any>
+                        Log.d("cyabcdefg", "rankingCollegeData:  $rankingCollegeData")
+                        if (rankingCollegeValue != null) {
+                            val rankingCollegeValue = rankingCollegeValue["$collegeName"] as? Long ?: 0
+                            Log.d("cyabcdefg", "collegeRankingDatadetail:  $rankingCollegeValue")
+                            val updateMap = HashMap<String, Any>()
+                            val averageCollegeWalk= newCollegeData/collegePerson
+                            updateMap["$collegeName"]=averageCollegeWalk
+                            rankingCollegeData.updateChildren(updateMap)
                                 .addOnSuccessListener {
                                     Log.d("cyabcdefg", "college Ranking data updated successfully.")
                                 }
@@ -526,7 +570,8 @@ class HomeFragment : Fragment() {
                     }
                 })
 
-                // 추가: 마지막 초기화 시간 업데이트
+
+                // 추가: 마지막 갱신 시간 업데이트
                 lastResetTimestamp = System.currentTimeMillis()
 
             }
