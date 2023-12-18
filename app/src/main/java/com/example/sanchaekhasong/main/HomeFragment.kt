@@ -144,6 +144,17 @@ class HomeFragment : Fragment() {
         val saturdayTextView = binding.Saturday
         val sundayTextView = binding.Sunday
 
+        // 요일에 따라 백그라운드 설정
+        when (currentDayOfWeek) {
+            Calendar.MONDAY -> onDayClicked(mondayTextView)
+            Calendar.TUESDAY -> onDayClicked(tuesdayTextView)
+            Calendar.WEDNESDAY -> onDayClicked(wednesdayTextView)
+            Calendar.THURSDAY -> onDayClicked(thursdayTextView)
+            Calendar.FRIDAY -> onDayClicked(fridayTextView)
+            Calendar.SATURDAY -> onDayClicked(saturdayTextView)
+            Calendar.SUNDAY -> onDayClicked(sundayTextView)
+        }
+
         // 모든 요일에 대한 클릭 이벤트 설정
         setDayClickListener(mondayTextView, Calendar.MONDAY, currentDayOfWeek)
         setDayClickListener(tuesdayTextView, Calendar.TUESDAY, currentDayOfWeek)

@@ -72,7 +72,6 @@ class MyPageActivity : AppCompatActivity() {
 
     }
 
-    //deleteaccount test 필요
     fun logout(username : String){
         auth.signOut()
         Toast.makeText(this, "${username} 님 로그아웃되셨습니다.", Toast.LENGTH_SHORT).show()
