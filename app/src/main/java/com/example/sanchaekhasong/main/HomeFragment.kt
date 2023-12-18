@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.preference.PreferenceManager
@@ -14,7 +13,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -576,7 +574,6 @@ class HomeFragment : Fragment() {
         when (resultCode) {
             Activity.RESULT_OK -> when (requestCode) {
                 MY_PERMISSIONS_REQUEST_ACTIVITY_RECOGNITION_AND_LOCATION -> {
-                    Toast.makeText(this.requireContext(), "google fit과 연동 성공하였습니다", Toast.LENGTH_SHORT).show()
                     startYourActivity()
                 }
                 else -> {
@@ -629,7 +626,6 @@ class HomeFragment : Fragment() {
         Toast.makeText(this.requireContext(), "google fit과 연동중입니다.", Toast.LENGTH_SHORT).show()
         Log.i("account","계정은 ${GoogleSignIn.hasPermissions(account, fitnessOptions)}")
         if (!GoogleSignIn.hasPermissions(account, fitnessOptions)) {
-            Toast.makeText(this.requireContext(), "구글인증이 실패.", Toast.LENGTH_SHORT).show()
             GoogleSignIn.requestPermissions(
                 this,
                 MY_PERMISSIONS_REQUEST_ACTIVITY_RECOGNITION_AND_LOCATION,
