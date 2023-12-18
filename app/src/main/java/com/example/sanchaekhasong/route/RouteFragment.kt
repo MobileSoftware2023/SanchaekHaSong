@@ -263,6 +263,7 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                         var currentPoint = dataSnapshot.child("point").value as Long
                         currentPoint+=100
                         myData.child("point").setValue(currentPoint)
+                        myData.child("dailyQuest").child("isCompleted").child("3").setValue(true)
                     }
                     override fun onCancelled(databaseError: DatabaseError) {
                         Log.e("TAG_DB", "onCancelled", databaseError.toException())
@@ -293,6 +294,7 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                         var currentPoint = dataSnapshot.child("point").value as Long
                         currentPoint+=100
                         myData.child("point").setValue(currentPoint)
+                        myData.child("dailyQuest").child("isCompleted").child("3").setValue(true)
                     }
                     override fun onCancelled(databaseError: DatabaseError) {
                         Log.e("TAG_DB", "onCancelled", databaseError.toException())
