@@ -97,7 +97,6 @@ class ChallengeTaskAdapter(
             }
         } else
         {
-            holder.binding.missionCheck.setBackgroundResource(R.drawable.dialog_border)
             // 클릭 리스너를 null로 설정하여 클릭 무시
             holder.binding.missionCheck.setOnClickListener(null)
         }

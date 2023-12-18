@@ -39,7 +39,7 @@
         android:layout_marginTop="30dp"
         android:layout_marginEnd="50dp"
         android:layout_marginBottom="25dp"
-        android:text="\u00B7 랭킹 기록 기간 : 월 ~ 토\n(매일 자정에 랭킹 화면 갱신)\n\n
+        android:text="\u00B7 랭킹 기록 기간 : 월 ~ 토\n  (매일 랭킹 화면 갱신)\n\n
 \u00B7 랭킹 정산일 : 일\n\n\u00B7 순위별 지급받는 포인트\n      \u00B7 1등 : 1000 C\n      \u00B7 2등 : 700 C\n      \u00B7 3등 : 400 C\n"
         app:layout_constraintBottom_toBottomOf="parent"
         android:textSize="16sp"
