@@ -80,7 +80,13 @@ class LoginActivity : AppCompatActivity() {
         binding.createDBBtn.setOnClickListener {
             setData("${ binding.emailText.text}", "${binding.collegeText.text}", "${binding.profileImageText.text}")
         }
+
+        //dailyQuest초기화 알람 설정
+        //dailyQuestResetAlarm(this)
+
     }
+
+
 
     private fun createAccount(email: String, password: String, profileImage:String, college : String) {
         if(isSchoolDomain(email)){

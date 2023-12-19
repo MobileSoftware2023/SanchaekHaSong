@@ -17,7 +17,7 @@
         android:background="@drawable/task_dialog_mission_border_blue">
         <TextView
             android:id="@+id/daily_task"
-            android:layout_width="wrap_content"
+            android:layout_width="220dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text=""
@@ -36,6 +36,7 @@
             android:background="@drawable/task_button_general"
             android:gravity="center"
             android:orientation="horizontal"
+            android:layout_marginRight="20dp"
             android:padding="3dp">
 
             <ImageView
