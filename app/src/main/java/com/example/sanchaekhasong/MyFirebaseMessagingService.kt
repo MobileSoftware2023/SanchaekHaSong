@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -20,22 +19,14 @@ import com.google.firebase.messaging.RemoteMessage
 
 // FirebaseInstanceIdService has been deprecated, use FirebaseMessagingService
 class MyFirebaseMessagingService : FirebaseMessagingService() {
-
+    private val TAG = "MyFirebaseMsgService"
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.d(TAG, "Refreshed token: $token")
-
-        saveTokenToDatabase(token)
     }
 
-    private fun saveTokenToDatabase(token: String) {
-        // Save the token to the database based on the user ID
-        val userId = FirebaseAuth.getInstance().currentUser?.email.toString().substringBeforeLast('@')
-        val databaseReference = FirebaseDatabase.getInstance().getReference("${userId}/fcmToken")
-        databaseReference.setValue(token)
-    }
 
-    private val TAG = "MyFirebaseMsgService"
+
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         // 메시지 수신 시 호출됩니다.
@@ -44,38 +35,15 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val title = remoteMessage.data["title"]
         val body = remoteMessage.data["body"]
         val point = remoteMessage.data["point"]
-
+        Log.d("여기있어욥", "메시지 수신 완료")
         // 팝업을 띄우는 등의 원하는 동작을 수행합니다.
+        Log.d("여기있어욥", "$point")
         showNotification(title, body, point)
     }
 
     private fun showNotification(title: String?, message: String?, point: String?) {
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        // Android Oreo 이상에서는 알림 채널을 설정해야 합니다.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                "default",
-                "Channel name",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-            notificationManager.createNotificationChannel(channel)
-        }
-
-        val intent = Intent(this, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
-        val notificationBuilder = NotificationCompat.Builder(this, "default")
-            .setContentTitle(title)
-            .setContentText(message)
-            .setSmallIcon(R.drawable.ic_notification_icon)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-
-        notificationManager.notify(0, notificationBuilder.build())
         val database = FirebaseDatabase.getInstance()
         val username = FirebaseAuth.getInstance().currentUser?.email.toString().substringBeforeLast('@')
         val userData = database.getReference("$username")
@@ -94,6 +62,33 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 }
             })
         }
+        // Android Oreo 이상에서는 알림 채널을 설정해야 합니다.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "default",
+                "Channel name",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
 
+        val intent = Intent(this, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notificationBuilder = NotificationCompat.Builder(this, "default")
+            .setContentTitle(title)
+            .setContentText(message)
+            .setSmallIcon(R.mipmap.ic_appimg)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+
+        if (title == "주간 단과대 랭킹 알림") {
+            notificationManager.notify(0, notificationBuilder.build())
+        }
+        else if (title == "주간 개인 랭킹 알림") {
+            notificationManager.notify(1, notificationBuilder.build())
+        }
     }
 }

@@ -17,6 +17,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.functions.FirebaseFunctions
+import kotlin.math.log
 
 class LoginActivity : AppCompatActivity() {
     lateinit var binding: ActivityLoginBinding
@@ -72,6 +73,7 @@ class LoginActivity : AppCompatActivity() {
                                     val fcmToken = task.result
                                     // 서버에 토큰을 저장
                                     if (fcmToken != null) {
+
                                         sendFCMTokenToServer(fcmToken)
                                     } else {
                                         Log.e("tokenFCMFailed", "FCM registration token is null")
@@ -196,22 +198,24 @@ class LoginActivity : AppCompatActivity() {
         return email.substringAfterLast('@')
     }
 
-    val functions = FirebaseFunctions.getInstance()
 
     // 클라이언트에서 호출하는 함수
     // Firebase Cloud Functions 호출 함수
     private fun sendFCMTokenToServer(fcmToken: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.email.toString().substringBeforeLast('@')
         // Cloud Functions 호출
-        val functions = FirebaseFunctions.getInstance()
+        Log.d("여기있어욥", "FCM registration token: $fcmToken 아이디: $userId")
         val data = hashMapOf(
             "userId" to userId,
             "fcmToken" to fcmToken
         )
-
-        functions
+        val func= FirebaseFunctions.getInstance("us-central1")
+        func
             .getHttpsCallable("saveFCMTokenToServer")
             .call(data)
+            .addOnFailureListener { e ->
+                println("Error calling saveFCMTokenToServer: $e")
+            }
             .continueWith { task ->
                 // Cloud Functions 호출 결과 처리
                 val result = task.result?.data as HashMap<*, *>?
