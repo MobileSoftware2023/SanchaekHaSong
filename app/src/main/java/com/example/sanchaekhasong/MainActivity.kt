@@ -64,27 +64,20 @@ class MainActivity : AppCompatActivity() {
 
         homeFragment=HomeFragment()
 
-        // FCM 토큰 얻기
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val token = task.result
-                // 얻은 토큰을 서버로 전송하거나 다른 작업 수행
-                // 예: 서버 API 호출 등
                 println("FCM 토큰: $token")
             } else {
-                // 토큰 얻기 실패
                 println("FCM 토큰 얻기 실패")
             }
         }
 
-        // FCM 토큰 갱신 이벤트 리스너 등록
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val refreshedToken = task.result
-                // 토큰 갱신 처리
                 println("갱신된 FCM 토큰: $refreshedToken")
             } else {
-                // 토큰 갱신 실패
                 println("FCM 토큰 갱신 실패")
             }
         }

@@ -54,10 +54,7 @@ class ChallengeTaskFragment : DialogFragment() {
             }
         })
 
-
-        // btn_challenge_close 버튼 클릭 이벤트 설정
         binding.btnCloseChallenge.setOnClickListener {
-            // 다이얼로그 프래그먼트를 닫음
             dismiss()
         }
 
@@ -66,7 +63,6 @@ class ChallengeTaskFragment : DialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        // full Screen code
         val width = (resources.displayMetrics.widthPixels * 0.95).toInt() // 90% of the screen width
         val roundedCornerDrawable= resources.getDrawable(R.drawable.task_dialog_border, null)
         dialog?.window?.setBackgroundDrawable(roundedCornerDrawable)

@@ -17,7 +17,6 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
 
-// FirebaseInstanceIdService has been deprecated, use FirebaseMessagingService
 class MyFirebaseMessagingService : FirebaseMessagingService() {
     private val TAG = "MyFirebaseMsgService"
     override fun onNewToken(token: String) {
@@ -29,15 +28,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        // 메시지 수신 시 호출됩니다.
-
-        // 푸시 메시지 내용을 가져옵니다.
+        // 메시지 수신 시 호출
         val title = remoteMessage.data["title"]
         val body = remoteMessage.data["body"]
         val point = remoteMessage.data["point"]
-        Log.d("여기있어욥", "메시지 수신 완료")
-        // 팝업을 띄우는 등의 원하는 동작을 수행합니다.
-        Log.d("여기있어욥", "$point")
         showNotification(title, body, point)
     }
 
@@ -55,6 +49,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                     userData.child("point").setValue(currentPoint)
                     userData.removeEventListener(this)
                 }
+
                 override fun onCancelled(error: DatabaseError) {
                     val code = error.code
                     val message = error.message
@@ -62,7 +57,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 }
             })
         }
-        // Android Oreo 이상에서는 알림 채널을 설정해야 합니다.
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 "default",

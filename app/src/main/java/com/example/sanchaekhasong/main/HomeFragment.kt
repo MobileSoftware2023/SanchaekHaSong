@@ -111,10 +111,9 @@ class HomeFragment : Fragment() {
         val currentDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
         val currentDate = calendar.time
         val endDate = calculateEndDate()
-        // 시간 차이 계산
+
         val timeDifference = endDate.time - currentDate.time
 
-        // 카운트다운 타이머 설정
         countdownTimer = object : CountDownTimer(timeDifference, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 val formattedTime = formatTime(millisUntilFinished)
@@ -161,10 +160,8 @@ class HomeFragment : Fragment() {
                     it
                 ) != PackageManager.PERMISSION_GRANTED
             }) {
-            // 하나라도 권한이 부여되지 않았으므로 권한을 요청합니다.
             requestActivityRecognitionAndLocationPermission()
         } else {
-            // 모든 권한이 이미 부여되었으므로 로직을 진행합니다.
             startYourActivity()
         }
 
@@ -172,7 +169,6 @@ class HomeFragment : Fragment() {
 
 
     private fun setDayClickListener(textView: TextView, dayOfWeek: Int, currentDayOfWeek: Int) {
-        // 오늘 이후의 요일에 해당하는 TextView에 대해서는 클릭 이벤트를 비활성화하고 텍스트 색상을 회색으로 변경
         if (dayOfWeek > currentDayOfWeek && currentDayOfWeek != Calendar.SUNDAY) {
             textView.setOnClickListener(null)
             textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.white_grey))
@@ -180,12 +176,10 @@ class HomeFragment : Fragment() {
             textView.setOnClickListener(null)
             textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.white_grey))
         }else {
-            // 오늘 이전의 날짜에 해당하는 TextView에 대해서는 클릭 이벤트 설정
             textView.setOnClickListener { onDayClicked(textView) }
             textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
         }
     }
-    // 클릭 이벤트 핸들러에서 필요한 데이터를 전달하는 함수
     private fun onDayClicked(textView: TextView) {
         val desiredDayOfWeek = when (textView.id) {
             R.id.Monday -> Calendar.MONDAY
@@ -195,28 +189,22 @@ class HomeFragment : Fragment() {
             R.id.Friday -> Calendar.FRIDAY
             R.id.Saturday -> Calendar.SATURDAY
             R.id.Sunday -> Calendar.SUNDAY
-            else -> return // 예상치 못한 경우, 처리 필요
+            else -> return
         }
 
         val calendar = Calendar.getInstance()
         val currentDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
 
         if (currentDayOfWeek  == Calendar.SUNDAY) {
-            // 일요일인 경우, 지난 주 해당 요일로 설정
             calendar.add(Calendar.WEEK_OF_YEAR, -1)
         }
-
-        // 일요일이 아닌 경우, 현재 주의 해당 요일로 설정
         calendar.set(Calendar.DAY_OF_WEEK, desiredDayOfWeek)
 
-        // 선택한 요일의 자정
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         calendar.set(Calendar.MINUTE, 0)
         calendar.set(Calendar.SECOND, 0)
         val startTime = calendar.timeInMillis
 
-
-        // 해당 날의 23시 59분 59초
         calendar.set(Calendar.HOUR_OF_DAY, 23)
         calendar.set(Calendar.MINUTE, 59)
         calendar.set(Calendar.SECOND, 59)
@@ -228,7 +216,6 @@ class HomeFragment : Fragment() {
             DataType.TYPE_CALORIES_EXPENDED
         )
 
-        // 비동기적으로 데이터 읽기
         lifecycleScope.launch {
             val (StepCount, Distance, Calories) = readHistoryData(startTime, endTime, dataTypesToRead)
 
@@ -240,10 +227,8 @@ class HomeFragment : Fragment() {
     }
     private fun calculateEndDate(): Date {
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"))
-        // 현재 날짜에서 토요일까지의 일수 계산
         val daysUntilSaturday = (Calendar.SATURDAY - calendar.get(Calendar.DAY_OF_WEEK) + 7) % 7
         calendar.add(Calendar.DAY_OF_YEAR, daysUntilSaturday + 1) // 일요일 자정으로 수정
-        // 토요일 자정 설정
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         calendar.set(Calendar.MINUTE, 0)
         calendar.set(Calendar.SECOND, 0)
@@ -366,7 +351,7 @@ class HomeFragment : Fragment() {
         val username = FirebaseAuth.getInstance().currentUser?.email.toString().substringBeforeLast('@')
 
         val userData = database.getReference("$username")
-        val college = userData.child("college") // 유저별 단과대 이름
+        val college = userData.child("college")
 
         var collegeName =""
         college.addValueEventListener(object : ValueEventListener {
@@ -397,29 +382,25 @@ class HomeFragment : Fragment() {
         initializeApp()
 
 
-        val startTime = weekStartTimestamp // 이번 주 월요일의 자정
+        val startTime = weekStartTimestamp
 
-        // 어제의 마지막 시간으로 설정
         var calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, -1)
         calendar.set(Calendar.HOUR_OF_DAY, 23)
         calendar.set(Calendar.MINUTE, 59)
         calendar.set(Calendar.SECOND, 59)
-        val endTime = calendar.timeInMillis // 어제의 23시 59분 59초
+        val endTime = calendar.timeInMillis
         var currentSumWalkCount  =0L
         var newwalkCount =0L
         var newCollegeData=0L
         var collegePerson =0L
-        // 추가: 월요일부터 앱을 실행한 날 전날까지의 축적 걸음수 일괄 업데이트
+        // 월요일부터 앱을 실행한 날 전날까지의 축적 걸음수 일괄 업데이트
         if (currentDate > lastResetTimestamp) {
             lifecycleScope.launch {
-                // (이전 코드 생략...)
                 Toast.makeText(requireContext(), "걸음수를 업데이트 했습니다", Toast.LENGTH_SHORT).show()
 
-                // 추가: weekStartTimestamp부터 앱을 실행한 날 전날까지의 걸음수 가져오기
                 val (newStepCount, _, _) = readHistoryData(startTime, endTime, listOf(DataType.TYPE_STEP_COUNT_DELTA))
 
-                // 추가: Firebase에 더하기
                 sumWalkCountReference.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         currentSumWalkCount = snapshot.getValue(Long::class.java) ?: 0
@@ -437,11 +418,8 @@ class HomeFragment : Fragment() {
                 rankingData.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val rankingDataValue= snapshot.value as? HashMap<String, Any>
-                        Log.d("cyabcdefg", "rankingDataValue:  $rankingDataValue")
                         if (rankingDataValue != null) {
-                            // 'yourFieldName'은 실제 데이터 필드의 이름으로 변경해야 합니다.
                             val rankingDataValue = rankingDataValue["$username"] as? Long ?: 0
-                            Log.d("cyabcdefg", "rankingDataValuedetail:  $rankingDataValue")
                             val updateMap = HashMap<String, Any>()
                             updateMap["$username"] = rankingDataValue - currentSumWalkCount + newwalkCount
                             rankingData.updateChildren(updateMap)
@@ -462,10 +440,8 @@ class HomeFragment : Fragment() {
                 collegeData.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val collegeRankingData =snapshot.value as? HashMap<String, Any>
-                        Log.d("cyabcdefg", "collegeRankingData:  $collegeRankingData")
                         if (collegeRankingData != null) {
                             val collegeRankingData = collegeRankingData["$collegeName"] as? Long ?: 0
-                            Log.d("cyabcdefg", "collegeRankingDatadetail:  $collegeRankingData")
                             val updateMap = HashMap<String, Any>()
                             newCollegeData = collegeRankingData - currentSumWalkCount + newwalkCount
                             updateMap["$collegeName"]= newCollegeData
@@ -487,11 +463,9 @@ class HomeFragment : Fragment() {
                 collegeReference.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val collegePersonValue = snapshot.value as? HashMap<String, Any>
-                        Log.d("cyabcdefg", "collegePersonValue:  $collegePersonValue")
                         if (collegePersonValue != null) {
                             collegePerson =
                                 collegePersonValue["$collegeName"] as? Long ?: 0
-                            Log.d("cyabcdefg", "collegePersonValue:  $collegePersonValue")
 
                         }
                     }
@@ -504,10 +478,8 @@ class HomeFragment : Fragment() {
                 rankingCollegeData.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val rankingCollegeValue =snapshot.value as? HashMap<String, Any>
-                        Log.d("cyabcdefg", "rankingCollegeData:  $rankingCollegeData")
                         if (rankingCollegeValue != null) {
                             val rankingCollegeValue = rankingCollegeValue["$collegeName"] as? Long ?: 0
-                            Log.d("cyabcdefg", "collegeRankingDatadetail:  $rankingCollegeValue")
                             val updateMap = HashMap<String, Any>()
                             val averageCollegeWalk= newCollegeData/collegePerson
                             updateMap["$collegeName"]=averageCollegeWalk
@@ -528,49 +500,39 @@ class HomeFragment : Fragment() {
                 })
 
 
-                // 추가: 마지막 갱신 시간 업데이트
+                //마지막 걸음수 갱신 시간 업데이트
                 lastResetTimestamp = System.currentTimeMillis()
 
             }
         }
     }
     fun initializeApp() {
-        // 만약 lastResetTimestamp가 초기화되지 않았다면 초기화
         calculateWeekStartTimestamp()
         if (lastResetTimestamp == 0L) {
             lastResetTimestamp = weekStartTimestamp
         }
     }
 
-    // 해당 주의 월요일을 계산하는 함수
     private fun calculateWeekStartTimestamp() {
         val calendar = Calendar.getInstance()
 
-        // 현재 날짜의 요일을 구한다 (일요일: 1, 월요일: 2, ..., 토요일: 7)
         val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
 
-        // 오늘이 일요일인 경우
         if (dayOfWeek == Calendar.SUNDAY) {
-            // 현재 요일에서 6일을 빼면 해당 주의 월요일로 이동
             calendar.add(Calendar.DAY_OF_YEAR, -6)
         } else {
-            // 현재 요일에서 2를 빼면 해당 주의 월요일로 이동
             val daysUntilMonday = (dayOfWeek + 5) % 7
             calendar.add(Calendar.DAY_OF_YEAR, -daysUntilMonday)
         }
-
-        // 해당 주의 월요일의 0시 0분 0초로 시간을 설정
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         calendar.set(Calendar.MINUTE, 0)
         calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
 
-        // 계산된 값을 weekStartTimestamp로 설정
         weekStartTimestamp = calendar.timeInMillis
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Log.d("cyasdfb", "onActivityResult")
         when (resultCode) {
             Activity.RESULT_OK -> when (requestCode) {
                 MY_PERMISSIONS_REQUEST_ACTIVITY_RECOGNITION_AND_LOCATION -> {
@@ -585,9 +547,7 @@ class HomeFragment : Fragment() {
             }
         }
     }
-    // 2. 권한을 요청하는 함수
     private fun requestActivityRecognitionAndLocationPermission() {
-        Log.d("cyasdfb", "requestActivityRecognitionAndLocationPermission")
         ActivityCompat.requestPermissions(
             this.requireActivity(),
             requiredPermissions,
@@ -596,13 +556,11 @@ class HomeFragment : Fragment() {
         startYourActivity()
     }
 
-    // 3. 권한 요청 결과를 처리하는 함수
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        Log.d("cyasdfb", "onRequestPermissionsResult")
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         Log.d("requestCode" ,"$requestCode")
         when (requestCode) {
@@ -618,9 +576,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // 4. 권한이 부여된 후에 실행하려는 로직을 담은 함수
     private fun startYourActivity() {
-        Log.d("cyasdfb", "startYourActivity")
         // 여기에 권한이 부여된 후에 수행하고자 하는 작업을 추가합니다.
         val account = GoogleSignIn.getAccountForExtension(this.requireContext(), fitnessOptions)
         Toast.makeText(this.requireContext(), "google fit과 연동중입니다.", Toast.LENGTH_SHORT).show()
@@ -677,20 +633,16 @@ class HomeFragment : Fragment() {
     }
 
     private fun processResponseData(response: DataReadResponse, dataTypes: List<DataType>): Triple<Int, Float, Float> {
-        // 여기에 데이터를 가공하는 로직을 추가
         var stepCount = 0
         var distance = 0f
         var calories = 0f
 
-        // DataReadResponse에서 버킷 가져오기
         val buckets = response.buckets
 
         for (bucket in buckets) {
-            // 각 버킷의 데이터 세트 얻기
             for (dataType in dataTypes) {
                 val dataSet = bucket.getDataSet(dataType)
 
-                // 데이터 세트에서 데이터 포인트 가져오기
                 if (dataSet != null) {
                     for (dp in dataSet.dataPoints) {
                         for (field in dp.dataType.fields) {
@@ -720,21 +672,17 @@ class HomeFragment : Fragment() {
         return Triple(stepCount, distance, calories)
     }
     private fun setDayBackgrounds(id: Int) {
-        // 모든 요일의 아이디를 배열로 정의
         val allDayIds = arrayOf(
             binding.Monday.id, binding.Tuesday.id, binding.Wednesday.id,
             binding.Thursday.id, binding.Friday.id, binding.Saturday.id, binding.Sunday.id
         )
 
-        // 선택된 요일을 제외하고 나머지 요일의 배경을 초기 상태로 되돌림
         for (dayId in allDayIds) {
             val dayTextView = binding.root.findViewById<TextView>(dayId)
             dayTextView.setBackgroundResource(if (dayId == id) R.drawable.day_select else android.R.color.transparent)
         }
     }
 
-
-    //missionCheck 함수추가
     private fun missionCheck(StepCount: Int) {
         val database = FirebaseDatabase.getInstance()
         val username = FirebaseAuth.getInstance().currentUser?.email.toString().substringBeforeLast('@')
@@ -744,7 +692,7 @@ class HomeFragment : Fragment() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val isCompletedData = dataSnapshot.value as? MutableList<Boolean>
 
-                if (StepCount >= 10 && !isCompletedData?.get(0)!!) {
+                if (StepCount >= 6000 && !isCompletedData?.get(0)!!) {
                     isCompletedData?.set(0, true)
                     dailyQuestData.setValue(isCompletedData)
 

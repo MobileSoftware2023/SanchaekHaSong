@@ -1,13 +1,3 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
-
-
 // The Firebase Admin SDK to access the Firebase Realtime Database.
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
@@ -40,8 +30,8 @@ exports.calculateAndNotifyRankings =
               const message = {
                 data: {
                   title: "주간 단과대 랭킹 알림", // 알림 제목 수정
-                  body: `축하합니다! ${team.collegeName}은(는)
-                  단과대 랭킹 ${top3Teams.indexOf(team) + 1}등을 달성했습니다.`,
+                  body: `축하합니다! ${team.collegeName}은(는)` +
+                  `단과대 랭킹 ${top3Teams.indexOf(team) + 1}등을 달성했습니다.`,
                   point:
                     `${calculatePointsForTeam(top3Teams.indexOf(team) + 1)}`,
                 },
@@ -80,8 +70,8 @@ exports.calculateAndNotifyRankings =
               const message = {
                 data: {
                   title: "주간 개인 랭킹 알림", // 알림 제목 수정
-                  body: `축하합니다! ${user.username}님은
-                  개인 랭킹 ${top3Users.indexOf(user) + 1}등을 달성했습니다.`,
+                  body: `축하합니다! ${user.username}님은 ` +
+                  `개인 랭킹 ${top3Users.indexOf(user) + 1}등을 달성했습니다.`,
                   point:
                   `${calculatePointsForUser(top3Users.indexOf(user) + 1)}`,
 

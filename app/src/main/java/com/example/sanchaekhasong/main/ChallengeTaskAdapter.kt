@@ -59,12 +59,10 @@ class ChallengeTaskAdapter(
         else{
             holder.binding.missionCheck.setBackgroundResource(R.drawable.task_button_general)
         }
-        // 미션 달성 여부에 따라 TextView 스타일 변경
         if (progress == 30 && !isCompleted) {
-            // 미션 달성 시 노란색으로 설정 (원하는 색상으로 변경)
+            // 미션 달성 시 노란색으로 설정
             holder.binding.missionCheck.setBackgroundResource(R.drawable.completed_rectangle)
 
-            // 클릭 리스너 설정
             holder.binding.missionCheck.setOnClickListener {
                 val database = FirebaseDatabase.getInstance()
                 val username = FirebaseAuth.getInstance().currentUser?.email.toString().substringBeforeLast('@')
@@ -97,7 +95,6 @@ class ChallengeTaskAdapter(
             }
         } else
         {
-            // 클릭 리스너를 null로 설정하여 클릭 무시
             holder.binding.missionCheck.setOnClickListener(null)
         }
     }

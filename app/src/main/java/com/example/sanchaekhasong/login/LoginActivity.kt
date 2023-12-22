@@ -67,19 +67,16 @@ class LoginActivity : AppCompatActivity() {
                     binding.passwordText.text.clear()
                     if(task.isSuccessful){
                         if(auth.currentUser?.isEmailVerified == true){
-                            // Firebase 메시징 서비스 초기화
                             FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                                 if (task.isSuccessful) {
                                     val fcmToken = task.result
                                     // 서버에 토큰을 저장
                                     if (fcmToken != null) {
-
                                         sendFCMTokenToServer(fcmToken)
                                     } else {
                                         Log.e("tokenFCMFailed", "FCM registration token is null")
                                     }
                                 } else {
-                                    // 토큰 얻기 실패
                                     Log.e("tokenFCMFailed", "Fetching FCM registration token failed")
                                 }
                             }
@@ -192,13 +189,9 @@ class LoginActivity : AppCompatActivity() {
         return email.substringAfterLast('@')
     }
 
-
-    // 클라이언트에서 호출하는 함수
-    // Firebase Cloud Functions 호출 함수
+    //Cloud Functions saveFCMTokenToServer 트리거
     private fun sendFCMTokenToServer(fcmToken: String) {
         val userId = FirebaseAuth.getInstance().currentUser?.email.toString().substringBeforeLast('@')
-        // Cloud Functions 호출
-        Log.d("여기있어욥", "FCM registration token: $fcmToken 아이디: $userId")
         val data = hashMapOf(
             "userId" to userId,
             "fcmToken" to fcmToken
@@ -217,10 +210,8 @@ class LoginActivity : AppCompatActivity() {
                 val message = result?.get("message") as String
 
                 if (success) {
-                    // 성공적으로 저장됐을 때의 처리
                     println("FCM token saved successfully: $message")
                 } else {
-                    // 저장에 실패했을 때의 처리
                     println("Error saving FCM token: $message")
                 }
             }

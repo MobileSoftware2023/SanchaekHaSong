@@ -54,9 +54,7 @@ class DailyTaskFragment : DialogFragment() {
                 Log.e("TAG_DB", "onCancelled by $code : $message")
             }
         })
-        // btn_daily_close 버튼 클릭 이벤트 설정
         binding.btnCloseDaily.setOnClickListener {
-            // 다이얼로그 프래그먼트를 닫음
             dismiss()
         }
 
@@ -64,7 +62,6 @@ class DailyTaskFragment : DialogFragment() {
     }
     override fun onResume() {
         super.onResume()
-        // full Screen code
         val width = (resources.displayMetrics.widthPixels * 0.95).toInt() // 90% of the screen width
         val roundedCornerDrawable= resources.getDrawable(R.drawable.task_dialog_border, null)
         dialog?.window?.setBackgroundDrawable(roundedCornerDrawable)
