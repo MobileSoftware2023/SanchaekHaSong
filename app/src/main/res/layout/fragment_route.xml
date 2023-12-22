@@ -70,13 +70,19 @@
                     android:layout_weight="1"/>
                 <Button
                     android:id="@+id/route_cancel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:stateListAnimator="@null"
+                    android:layout_width="70dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/route_cancle"
                     android:text="취소"/>
                 <Button
                     android:id="@+id/route_complete"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:stateListAnimator="@null"
+                    android:layout_width="70dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/route_complete"
+                    android:layout_marginLeft="5dp"
+                    android:textColor="#FFFFFF"
                     android:text="완료"/>
             </LinearLayout>
         </LinearLayout>
