@@ -75,7 +75,7 @@ class DeleteAccountActivity : AppCompatActivity() {
                 if(task.isSuccessful){
                     deleteAccount(username)
                 }else {
-                    Toast.makeText(baseContext, "비밀번호를 다시한번 입력해주세요.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(baseContext, "비밀번호를 다시 한번 입력해 주세요.", Toast.LENGTH_SHORT).show()
                 }
             }
     }
@@ -88,7 +88,6 @@ class DeleteAccountActivity : AppCompatActivity() {
                 val database = FirebaseDatabase.getInstance()
                 val myData = database.getReference("$username")
                 var college : String
-                //단과대 학생수 조정
                 myData.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
                         college = dataSnapshot.child("college").value as String
@@ -110,7 +109,6 @@ class DeleteAccountActivity : AppCompatActivity() {
                         Log.e("TAG_DB", "onCancelled", databaseError.toException())
                     }
                 })
-                //사용자 정보 제거
                 myData.removeValue().addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         val intent : Intent = Intent(this, LoginActivity::class.java)

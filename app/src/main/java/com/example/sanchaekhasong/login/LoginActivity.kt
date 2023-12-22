@@ -95,14 +95,6 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
         }
-
-        binding.createDBBtn.setOnClickListener {
-            setData("${ binding.emailText.text}", "${binding.collegeText.text}", "${binding.profileImageText.text}")
-        }
-
-        //dailyQuest초기화 알람 설정
-        //dailyQuestResetAlarm(this)
-
     }
 
 
@@ -122,7 +114,6 @@ class LoginActivity : AppCompatActivity() {
                             }
                     }else {
                         Toast.makeText(this, "회원가입 실패", Toast.LENGTH_SHORT).show()
-                        Log.e("srb", " ${task.exception?.message}")
                     }
                 }
         }
@@ -134,7 +125,6 @@ class LoginActivity : AppCompatActivity() {
 
     private fun setData(email: String, college: String, profileImage: String){
         //username -> 프로필사진, 단과대, 포인트, 보유프로필사진(기본 + 구매), 구매한프로필사진, 구매한쿠폰, 걸음수총합
-        //@college -> 단과대 학생수 + 1
         username = email.substringBeforeLast('@')
         val database = FirebaseDatabase.getInstance()
         val myData = database.getReference("$username")
@@ -169,8 +159,6 @@ class LoginActivity : AppCompatActivity() {
         myData.child("dailyQuest").child("isCompleted").setValue(completedList)
         myData.child("dailyQuest").child("isCompletedClicked").setValue(completedList)
 
-
-
         //단과대 학생수 등록
         val myData1 = database.getReference("@college").child("$college")
         myData1.addListenerForSingleValueEvent(object :
@@ -185,7 +173,7 @@ class LoginActivity : AppCompatActivity() {
                 Log.e("TAG_DB", "onCancelled", databaseError.toException())
             }
         })
-        //개인별 걸음수 data만 따로 등록 : @ranking - username : sumWalkCount
+        //personal ranking 걸음수 data
         val myData2 = database.getReference("@ranking").child("$username")
         myData2.setValue(0)
 

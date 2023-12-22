@@ -35,7 +35,6 @@ class PersonalRankingFragment : Fragment() {
                     val username = snapshot.key
                     orderedRankingList.add(username!!)
                 }
-                //걸음수대로 정렬된 사용자이름
                 rankingList = orderedRankingList.toList().reversed()
                 personalRankingAdapter.updateData(rankingList)
             }
