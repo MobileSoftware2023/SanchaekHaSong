@@ -1,17 +1,17 @@
 package com.example.sanchaekhasong.route
 
-import android.Manifest
-import android.annotation.SuppressLint
+import android.app.Dialog
+import android.content.Context
 import android.content.DialogInterface
-import android.content.pm.PackageManager
 import android.graphics.Color
-import android.os.Build
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -42,8 +42,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-
-
 class RouteFragment : Fragment(), OnMapReadyCallback {
     private lateinit var mapView: MapView
     private lateinit var naverMap: NaverMap
@@ -54,7 +52,6 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
     val database = FirebaseDatabase.getInstance()
     val username = FirebaseAuth.getInstance().currentUser?.email.toString().substringBeforeLast('@')
     val myData = database.getReference("$username")
-
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
@@ -153,21 +150,18 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
 
         naverMap.addOnLocationChangeListener { location ->
             val currentLocation = LatLng(location.latitude, location.longitude)
-            _route1inRange = isWithinRadius(currentLocation, route1[0], 3000.0)
-            route1inRange_ = isWithinRadius(currentLocation, route1.last(), 30.0)
-            _route2inRange = isWithinRadius(currentLocation, route2[0], 30.0)
-            route2inRange_ = isWithinRadius(currentLocation, route2.last(), 30.0)
-            _route3inRange = isWithinRadius(currentLocation, route3[0], 30.0)
-            route3inRange_ = isWithinRadius(currentLocation, route3.last(), 30.0)
-
+            _route1inRange = isWithinRadius(currentLocation, route1[0], 20.0)
+            route1inRange_ = isWithinRadius(currentLocation, route1.last(), 20.0)
+            _route2inRange = isWithinRadius(currentLocation, route2[0], 20.0)
+            route2inRange_ = isWithinRadius(currentLocation, route2.last(), 20.0)
+            _route3inRange = isWithinRadius(currentLocation, route3[0], 20.0)
+            route3inRange_ = isWithinRadius(currentLocation, route3.last(), 20.0)
         }
 
         val btnStart1 = activity?.findViewById<Button>(R.id.btnStart1)
         btnStart1?.setOnClickListener {
             routeProgress(_route1inRange,route1inRange_,R.drawable.route_one,R.string.route_one)
         }
-
-        //Toast.makeText(activity, "도착!!", Toast.LENGTH_SHORT).show()
 
         viewPager?.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
@@ -244,65 +238,10 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
         val start6 = activity?.findViewById<View>(R.id.route3_)
 
         routeComplete?.setOnClickListener {
-            /*if (start1?.visibility==View.INVISIBLE&&route1inRange_){
-                Toast.makeText(activity, "도착1!!", Toast.LENGTH_SHORT).show()
-                start1?.visibility=View.GONE
-            }*/
-            if (start1?.visibility==View.INVISIBLE&&_route1inRange){
-                //Toast.makeText(activity, "도착1!!", Toast.LENGTH_SHORT).show()
-                val builder = activity?.let { it1 -> AlertDialog.Builder(it1) }
-                if (builder != null) {
-                    builder.setMessage("도서관-순헌관 루트 걷기를 완료했어요!")
-                        .setPositiveButton("확인",
-                            DialogInterface.OnClickListener { dialog, id ->
-                            })
-                }
-                // 다이얼로그를 띄워주기
-                if (builder != null) {
-                    builder.show()
-                }
-
-                myData.orderByValue().addListenerForSingleValueEvent(object :
-                    ValueEventListener {
-                    override fun onDataChange(dataSnapshot: DataSnapshot) {
-                        var currentPoint = dataSnapshot.child("point").value as Long
-                        currentPoint+=100
-                        myData.child("point").setValue(currentPoint)
-
-                        val isClicked = dataSnapshot.child("dailyQuest").child("isCompletedClicked").child("3").value as Boolean
-                        if(!isClicked)
-                            myData.child("dailyQuest").child("isCompleted").child("3").setValue(true)
-
-                        var progress = dataSnapshot.child("challenge").child("progress").child("3").value as Long
-                        if(progress < 30){
-                            progress+=1
-                            myData.child("challenge").child("progress").child("3").setValue(progress)
-                        }
-
-
-                    }
-                    override fun onCancelled(databaseError: DatabaseError) {
-                        Log.e("TAG_DB", "onCancelled", databaseError.toException())
-                    }
-                })
-
-                start1?.visibility=View.GONE
-                bottomSheet?.visibility=View.VISIBLE
-                progress?.visibility=View.GONE
-
-            } else if (start2?.visibility==View.INVISIBLE&&_route1inRange){
-                //Toast.makeText(activity, "도착2!!", Toast.LENGTH_SHORT).show()
-                val builder = activity?.let { it1 -> AlertDialog.Builder(it1) }
-                if (builder != null) {
-                    builder.setMessage("도서관-순헌관 루트 걷기를 완료했어요!")
-                        .setPositiveButton("확인",
-                            DialogInterface.OnClickListener { dialog, id ->
-                            })
-                }
-                // 다이얼로그를 띄워주기
-                if (builder != null) {
-                    builder.show()
-                }
+            if (start1?.visibility==View.INVISIBLE&&route1inRange_){
+                val customDialog = CustomDialog(requireContext(), R.string.route_one)
+                customDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                customDialog.show()
 
                 myData.orderByValue().addListenerForSingleValueEvent(object :
                     ValueEventListener {
@@ -329,20 +268,43 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                 start1?.visibility=View.GONE
                 bottomSheet?.visibility=View.VISIBLE
                 progress?.visibility=View.GONE
+            }
+            else if (start2?.visibility==View.INVISIBLE&&_route1inRange){
+                val customDialog = CustomDialog(requireContext(), R.string.route_one)
+                customDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                customDialog.show()
 
-            }else if (start3?.visibility==View.INVISIBLE&&route2inRange_){
-                //Toast.makeText(activity, "도착3!!", Toast.LENGTH_SHORT).show()
-                val builder = activity?.let { it1 -> AlertDialog.Builder(it1) }
-                if (builder != null) {
-                    builder.setMessage("명재관-프라임관 루트 걷기를 완료했어요!")
-                        .setPositiveButton("확인",
-                            DialogInterface.OnClickListener { dialog, id ->
-                            })
-                }
-                // 다이얼로그를 띄워주기
-                if (builder != null) {
-                    builder.show()
-                }
+                myData.orderByValue().addListenerForSingleValueEvent(object :
+                    ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        var currentPoint = dataSnapshot.child("point").value as Long
+                        currentPoint+=100
+                        myData.child("point").setValue(currentPoint)
+
+                        val isClicked = dataSnapshot.child("dailyQuest").child("isCompletedClicked").child("3").value as Boolean
+                        if(!isClicked)
+                            myData.child("dailyQuest").child("isCompleted").child("3").setValue(true)
+
+                        var progress = dataSnapshot.child("challenge").child("progress").child("3").value as Long
+                        if(progress < 30){
+                            progress+=1
+                            myData.child("challenge").child("progress").child("3").setValue(progress)
+                        }
+
+                    }
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        Log.e("TAG_DB", "onCancelled", databaseError.toException())
+                    }
+                })
+
+                start1?.visibility=View.GONE
+                bottomSheet?.visibility=View.VISIBLE
+                progress?.visibility=View.GONE
+            }
+            else if (start3?.visibility==View.INVISIBLE&&route2inRange_){
+                val customDialog = CustomDialog(requireContext(), R.string.route_two)
+                customDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                customDialog.show()
 
                 myData.orderByValue().addListenerForSingleValueEvent(object :
                     ValueEventListener {
@@ -361,6 +323,7 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                             progress+=1
                             myData.child("challenge").child("progress").child("4").setValue(progress)
                         }
+
                     }
                     override fun onCancelled(databaseError: DatabaseError) {
                         Log.e("TAG_DB", "onCancelled", databaseError.toException())
@@ -372,18 +335,9 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                 progress?.visibility=View.GONE
 
             }else if (start4?.visibility==View.INVISIBLE&&_route2inRange){
-                //Toast.makeText(activity, "도착4!!", Toast.LENGTH_SHORT).show()
-                val builder = activity?.let { it1 -> AlertDialog.Builder(it1) }
-                if (builder != null) {
-                    builder.setMessage("명재관-프라임관 루트 걷기를 완료했어요!")
-                        .setPositiveButton("확인",
-                            DialogInterface.OnClickListener { dialog, id ->
-                            })
-                }
-                // 다이얼로그를 띄워주기
-                if (builder != null) {
-                    builder.show()
-                }
+                val customDialog = CustomDialog(requireContext(), R.string.route_two)
+                customDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                customDialog.show()
 
                 myData.orderByValue().addListenerForSingleValueEvent(object :
                     ValueEventListener {
@@ -412,18 +366,9 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                 progress?.visibility=View.GONE
 
             }else if (start5?.visibility==View.INVISIBLE&&route3inRange_){
-                //Toast.makeText(activity, "도착5!!", Toast.LENGTH_SHORT).show()
-                val builder = activity?.let { it1 -> AlertDialog.Builder(it1) }
-                if (builder != null) {
-                    builder.setMessage("숙대입구역-1캠정문 루트 걷기를 완료했어요!")
-                        .setPositiveButton("확인",
-                            DialogInterface.OnClickListener { dialog, id ->
-                            })
-                }
-                // 다이얼로그를 띄워주기
-                if (builder != null) {
-                    builder.show()
-                }
+                val customDialog = CustomDialog(requireContext(), R.string.route_three)
+                customDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                customDialog.show()
 
                 myData.orderByValue().addListenerForSingleValueEvent(object :
                     ValueEventListener {
@@ -450,20 +395,10 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                 start1?.visibility=View.GONE
                 bottomSheet?.visibility=View.VISIBLE
                 progress?.visibility=View.GONE
-
             }else if (start6?.visibility==View.INVISIBLE&&_route3inRange){
-                //Toast.makeText(activity, "도착6!!", Toast.LENGTH_SHORT).show()
-                val builder = activity?.let { it1 -> AlertDialog.Builder(it1) }
-                if (builder != null) {
-                    builder.setMessage("숙대입구역-1캠정문 루트 걷기를 완료했어요!")
-                        .setPositiveButton("확인",
-                            DialogInterface.OnClickListener { dialog, id ->
-                            })
-                }
-                // 다이얼로그를 띄워주기
-                if (builder != null) {
-                    builder.show()
-                }
+                val customDialog = CustomDialog(requireContext(), R.string.route_three)
+                customDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                customDialog.show()
 
                 myData.orderByValue().addListenerForSingleValueEvent(object :
                     ValueEventListener {
@@ -490,12 +425,10 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                 start1?.visibility=View.GONE
                 bottomSheet?.visibility=View.VISIBLE
                 progress?.visibility=View.GONE
-
             } else {
-                Toast.makeText(activity, "도착지점 반경 30m 내에서 완료해주세요", Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, "도착지점 반경 20m 내에서 완료해주세요", Toast.LENGTH_SHORT).show()
             }
         }
-
 
     }
 
@@ -590,7 +523,7 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                 }
             }
 
-            Toast.makeText(activity, "루트 시작 $_route, $route_!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, "루트 시작!", Toast.LENGTH_SHORT).show()
             bottomSheet?.visibility = View.GONE
             img?.setImageResource(routeImg)
             name?.setText(routeName)
@@ -598,26 +531,33 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
             val routeCancel = activity?.findViewById<Button>(R.id.route_cancel)
             routeCancel?.setOnClickListener{
                 val builder = activity?.let { it1 -> AlertDialog.Builder(it1) }
-                if (builder != null) {
-                    builder.setMessage("루트 진행을 중단하시겠습니까?")
-                        .setPositiveButton("확인",
-                            DialogInterface.OnClickListener { dialog, id ->
-                                bottomSheet?.visibility = View.VISIBLE
-                                progress?.visibility = View.GONE
-                            })
-                        .setNegativeButton("취소",
-                            DialogInterface.OnClickListener { dialog, id ->
-                            })
+                val inflater = LayoutInflater.from(activity)
+                val view = inflater.inflate(R.layout.route_dialog, null)
+                val textView = view.findViewById<TextView>(R.id.buyText)
+                val completeButton = view.findViewById<Button>(R.id.confirmButton)
+                val cancelButton = view.findViewById<Button>(R.id.cancelButton)
+                val dialog: AlertDialog? = builder?.create()
+                dialog?.setView(view)
+                dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+                dialog?.show()
+                textView.text = "루트 진행을 중단하시겠습니까?"
+                completeButton.setOnClickListener {
+                    bottomSheet?.visibility = View.VISIBLE
+                    progress?.visibility = View.GONE
+                    // 다이얼로그 닫기
+                    dialog?.dismiss()
                 }
-                // 다이얼로그를 띄워주기
-                if (builder != null) {
-                    builder.show()
+                cancelButton.setOnClickListener {
+                    // 다이얼로그 닫기
+                    dialog?.dismiss()
                 }
+
             }
 
         }
         else {
-            Toast.makeText(activity, "양 끝 지점의 반경 30m 내에서 시작해주세요.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, "양 끝 지점의 반경 20m 내에서 시작해주세요.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -643,7 +583,7 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
         LatLng(37.545675, 126.966720),
         LatLng(37.545490, 126.966240),
         LatLng(37.545450, 126.965610),
-        LatLng(37.545300, 126.965610),
+        LatLng(37.545300, 126.965610),  
         LatLng(37.545180, 126.965500),
         LatLng(37.545250, 126.964950),
         LatLng(37.544900, 126.964930)
@@ -659,4 +599,46 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
         LatLng(37.545090, 126.965900),
         LatLng(37.545290, 126.964900)
     )
+}
+
+
+class CustomDialog(context: Context, routeName: Int) : Dialog(context) {
+
+    private lateinit var textView: TextView
+    private lateinit var completeButton: Button
+    private lateinit var cancelButton: Button
+    private var name =routeName
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        setContentView(R.layout.route_dialog)
+
+        textView = findViewById(R.id.buyText)
+        completeButton = findViewById(R.id.confirmButton)
+        cancelButton = findViewById(R.id.cancelButton)
+
+        if (name==R.string.cancel) {
+            cancelButton.visibility = View.VISIBLE
+        }else{
+            cancelButton.visibility = View.INVISIBLE
+        }
+
+        val txt = when (name){
+            R.string.route_one -> "도서관-순헌관 루트 걷기를 완료했어요!"
+            R.string.route_two -> "명재관-프라임관 루트 걷기를 완료했어요!"
+            R.string.route_three -> "숙대입구역-1캠정문 루트 걷기를 완료했어요!"
+            R.string.cancel -> "루트 진행을 중단하시겠습니까?"
+            else -> null
+        }
+        textView.setText(txt)
+
+        completeButton.setOnClickListener {
+            dismiss()
+        }
+
+        cancelButton.setOnClickListener {
+            dismiss()
+        }
+    }
 }

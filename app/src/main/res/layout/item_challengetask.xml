@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
             android:text=""
-            android:textSize="16sp" />
+            android:textSize="14sp" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -58,7 +58,7 @@
                 android:shadowRadius="3"
                 android:text="0 / 30"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@+id/progressBar"
@@ -101,7 +101,7 @@
             android:layout_marginRight="5dp"
             android:text=""
             android:gravity="center"
-            android:textSize="16sp"></TextView>
+            android:textSize="14sp"></TextView>
     </LinearLayout>
 
 </LinearLayout>
