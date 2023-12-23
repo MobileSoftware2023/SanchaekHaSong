@@ -4,7 +4,7 @@ const admin = require("firebase-admin");
 admin.initializeApp();
 
 exports.calculateAndNotifyRankings =
-    functions.pubsub.schedule("0 0 * * 1") // 매주 월요일 자정
+    functions.pubsub.schedule("59 23 * * 0") // 매주 일요일 23시 59분
         .timeZone("Asia/Seoul")
         .onRun(async (context) => {
           try {
