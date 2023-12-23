@@ -30,7 +30,7 @@ exports.calculateAndNotifyRankings =
               const message = {
                 data: {
                   title: "주간 단과대 랭킹 알림", // 알림 제목 수정
-                  body: `축하합니다! ${team.collegeName}은(는)` +
+                  body: `축하합니다! ${team.collegeName}은(는) ` +
                   `단과대 랭킹 ${top3Teams.indexOf(team) + 1}등을 달성했습니다.`,
                   point:
                     `${calculatePointsForTeam(top3Teams.indexOf(team) + 1)}`,

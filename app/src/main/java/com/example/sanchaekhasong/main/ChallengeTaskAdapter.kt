@@ -60,7 +60,6 @@ class ChallengeTaskAdapter(
             holder.binding.missionCheck.setBackgroundResource(R.drawable.task_button_general)
         }
         if (progress == 30 && !isCompleted) {
-            // 미션 달성 시 노란색으로 설정
             holder.binding.missionCheck.setBackgroundResource(R.drawable.completed_rectangle)
 
             holder.binding.missionCheck.setOnClickListener {

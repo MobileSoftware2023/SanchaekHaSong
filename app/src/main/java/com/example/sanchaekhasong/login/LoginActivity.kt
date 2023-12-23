@@ -121,7 +121,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setData(email: String, college: String, profileImage: String){
-        //username -> 프로필사진, 단과대, 포인트, 보유프로필사진(기본 + 구매), 구매한프로필사진, 구매한쿠폰, 걸음수총합
+        //username의 db
         username = email.substringBeforeLast('@')
         val database = FirebaseDatabase.getInstance()
         val myData = database.getReference("$username")

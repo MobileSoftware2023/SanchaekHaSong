@@ -63,7 +63,7 @@ class ChallengeTaskFragment : DialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        val width = (resources.displayMetrics.widthPixels * 0.95).toInt() // 90% of the screen width
+        val width = (resources.displayMetrics.widthPixels * 0.95).toInt()
         val roundedCornerDrawable= resources.getDrawable(R.drawable.task_dialog_border, null)
         dialog?.window?.setBackgroundDrawable(roundedCornerDrawable)
         dialog?.window?.setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
