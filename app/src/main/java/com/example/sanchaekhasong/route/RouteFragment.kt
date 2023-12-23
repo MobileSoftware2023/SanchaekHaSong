@@ -42,7 +42,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-
 class RouteFragment : Fragment(), OnMapReadyCallback {
     private lateinit var mapView: MapView
     private lateinit var naverMap: NaverMap
@@ -164,8 +163,6 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
             routeProgress(_route1inRange,route1inRange_,R.drawable.route_one,R.string.route_one)
         }
 
-        //Toast.makeText(activity, "도착!!", Toast.LENGTH_SHORT).show()
-
         viewPager?.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
@@ -242,7 +239,6 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
 
         routeComplete?.setOnClickListener {
             if (start1?.visibility==View.INVISIBLE&&route1inRange_){
-                //Toast.makeText(activity, "도착1!!", Toast.LENGTH_SHORT).show()
                 val customDialog = CustomDialog(requireContext(), R.string.route_one)
                 customDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                 customDialog.show()
@@ -274,7 +270,6 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                 progress?.visibility=View.GONE
             }
             else if (start2?.visibility==View.INVISIBLE&&_route1inRange){
-                //Toast.makeText(activity, "도착2!!", Toast.LENGTH_SHORT).show()
                 val customDialog = CustomDialog(requireContext(), R.string.route_one)
                 customDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                 customDialog.show()
@@ -307,7 +302,6 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                 progress?.visibility=View.GONE
             }
             else if (start3?.visibility==View.INVISIBLE&&route2inRange_){
-                //Toast.makeText(activity, "도착3!!", Toast.LENGTH_SHORT).show()
                 val customDialog = CustomDialog(requireContext(), R.string.route_two)
                 customDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                 customDialog.show()
@@ -341,7 +335,6 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                 progress?.visibility=View.GONE
 
             }else if (start4?.visibility==View.INVISIBLE&&_route2inRange){
-                //Toast.makeText(activity, "도착4!!", Toast.LENGTH_SHORT).show()
                 val customDialog = CustomDialog(requireContext(), R.string.route_two)
                 customDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                 customDialog.show()
@@ -373,7 +366,6 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                 progress?.visibility=View.GONE
 
             }else if (start5?.visibility==View.INVISIBLE&&route3inRange_){
-                //Toast.makeText(activity, "도착5!!", Toast.LENGTH_SHORT).show()
                 val customDialog = CustomDialog(requireContext(), R.string.route_three)
                 customDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                 customDialog.show()
@@ -404,7 +396,6 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                 bottomSheet?.visibility=View.VISIBLE
                 progress?.visibility=View.GONE
             }else if (start6?.visibility==View.INVISIBLE&&_route3inRange){
-                //Toast.makeText(activity, "도착6!!", Toast.LENGTH_SHORT).show()
                 val customDialog = CustomDialog(requireContext(), R.string.route_three)
                 customDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                 customDialog.show()
@@ -623,7 +614,6 @@ class CustomDialog(context: Context, routeName: Int) : Dialog(context) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.route_dialog)
 
-        // 참조 얻어오기
         textView = findViewById(R.id.buyText)
         completeButton = findViewById(R.id.confirmButton)
         cancelButton = findViewById(R.id.cancelButton)
@@ -643,16 +633,12 @@ class CustomDialog(context: Context, routeName: Int) : Dialog(context) {
         }
         textView.setText(txt)
 
-        // 완료 버튼 클릭 이벤트 처리
         completeButton.setOnClickListener {
-            // 완료 버튼이 클릭되었을 때 수행할 작업
-            dismiss() // 다이얼로그 닫기
+            dismiss()
         }
 
-        // 취소 버튼 클릭 이벤트 처리
         cancelButton.setOnClickListener {
-            // 취소 버튼이 클릭되었을 때 수행할 작업
-            dismiss() // 다이얼로그 닫기
+            dismiss()
         }
     }
 }
